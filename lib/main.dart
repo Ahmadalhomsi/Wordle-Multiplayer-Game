@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wordle/screen/game_screen.dart';
 import 'package:wordle/screen/room_maker.dart';
+import 'package:wordle/screen/rooms_browser.dart';
 import 'package:wordle/screen/word_entry.dart';
 
 void main() {
@@ -19,7 +20,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const RoomMaker(),
+      home: RoomBrowseScreen(),
+      routes: {
+        '/room_maker': (context) => RoomMaker(),
+      },
     );
   }
 }

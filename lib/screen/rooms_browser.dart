@@ -11,9 +11,9 @@ class Room {
 
 // Sample data for rooms
 List<Room> rooms = [
-  Room(name: 'Room 1', type: 'Private', isFull: false),
-  Room(name: 'Room 2', type: 'Public', isFull: true),
-  Room(name: 'Room 3', type: 'Private', isFull: false),
+  Room(name: 'Room 1', type: 'Random', isFull: false),
+  Room(name: 'Room 2', type: 'User Input', isFull: true),
+  Room(name: 'Room 3', type: 'Random', isFull: false),
   // Add more room objects as needed
 ];
 
@@ -24,6 +24,28 @@ class RoomBrowseScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Rooms Browse'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 20.0), // Adjust the padding as needed
+            child: TextButton(
+              onPressed: () {
+                // Handle pressing the "Create Room" button
+                print('Create Room button pressed');
+                // Navigate to the room maker screen
+                Navigator.pushNamed(context, '/room_maker');
+              },
+              child: Text(
+                'Create Room',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16, // Adjust the font size as needed
+                  color: Colors.blueGrey[900], // Set the text color
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: ListView.separated(
         itemCount: rooms.length,
@@ -52,9 +74,10 @@ class RoomBrowseScreen extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      room.type == 'Private' ? Icons.lock : Icons.public,
-                      color:
-                          room.type == 'Private' ? Colors.blue : Colors.green,
+                      room.type == 'Random'
+                          ? Icons.casino_rounded
+                          : Icons.keyboard_rounded,
+                      color: room.type == 'Random' ? Colors.blue : Colors.green,
                       size: 16,
                     ),
                     SizedBox(width: 4),
@@ -62,7 +85,7 @@ class RoomBrowseScreen extends StatelessWidget {
                       room.type,
                       style: TextStyle(
                         color:
-                            room.type == 'Private' ? Colors.blue : Colors.green,
+                            room.type == 'Random' ? Colors.blue : Colors.green,
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
                       ),
@@ -89,10 +112,4 @@ class RoomBrowseScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: RoomBrowseScreen(),
-  ));
 }

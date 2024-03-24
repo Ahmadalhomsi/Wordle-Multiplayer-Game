@@ -22,6 +22,9 @@ class _RoomMakerState extends State<RoomMaker> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF212121),
+      appBar: AppBar(
+        title: Text('Rooms Browse'),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

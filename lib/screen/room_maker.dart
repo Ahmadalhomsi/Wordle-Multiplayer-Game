@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:wordle/screen/game_screen.dart';
+import 'package:wordle/screen/rooms_browser.dart';
 
-class WordScreen extends StatefulWidget {
-  const WordScreen({Key? key}) : super(key: key);
+class RoomMaker extends StatefulWidget {
+  const RoomMaker({Key? key}) : super(key: key);
 
   @override
-  State<WordScreen> createState() => _WordScreenState();
+  State<RoomMaker> createState() => _RoomMakerState();
 }
 
-class _WordScreenState extends State<WordScreen> {
+class _RoomMakerState extends State<RoomMaker> {
   int _sliderValue = 4;
   List row1 = "QWERTYUIOP".split("");
   List row2 = "ASDEFGHJKL".split("");
   List row3 = ["DEL", "Z", "X", "C", "V", "B", "N", "M", "SUBMIT"];
 
-  List<String> letters = "       ".split(""); // Generate letters from A to Z
+  TextEditingController _roomNameController = TextEditingController();
   int index = 0;
 
   @override
@@ -27,7 +28,7 @@ class _WordScreenState extends State<WordScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Room Name',
+              'Room Name:',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -36,69 +37,23 @@ class _WordScreenState extends State<WordScreen> {
             SizedBox(
               height: 20.0,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: letters.take(_sliderValue).map((letter) {
-                return InkWell(
-                  child: Container(
-                    padding: const EdgeInsets.all(10.0),
-                    width: 64.0, // Adjust this width as needed
-                    height: 64.0, // Adjust this height as needed
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      color: Colors.grey.shade300,
-                    ),
-                    child: Center(
-                      // Center the text horizontally and vertically
-                      child: Text(
-                        "$letter",
-                        style: const TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
+            TextField(
+              controller: _roomNameController,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey.shade300,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
             ),
             SizedBox(
               height: 30.0,
-            ),
-            Slider(
-              value: _sliderValue.toDouble(),
-              min: 4,
-              max: 7,
-              divisions: 3,
-              onChanged: (newValue) {
-                setState(() {
-                  _sliderValue = newValue.toInt();
-                });
-              },
-            ),
-            Text(
-              'Word size: $_sliderValue',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(
-              height: 20.0,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          GameScreen(_sliderValue, letters.toString())),
-                );
-              },
-              child: Text('Go to Another Screen'),
-            ),
-            SizedBox(
-              height: 20.0,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -106,12 +61,11 @@ class _WordScreenState extends State<WordScreen> {
                 return InkWell(
                   onTap: () {
                     print(e + index.toString());
-                    if (index < _sliderValue) {
-                      setState(() {
-                        letters[index] = e;
-                        index++;
-                      });
-                    }
+
+                    setState(() {
+                      _roomNameController.text += e;
+                      index++;
+                    });
                   },
                   child: Container(
                     padding: const EdgeInsets.all(10.0),
@@ -138,12 +92,11 @@ class _WordScreenState extends State<WordScreen> {
                 return InkWell(
                   onTap: () {
                     print(e + index.toString());
-                    if (index < _sliderValue) {
-                      setState(() {
-                        letters[index] = e;
-                        index++;
-                      });
-                    }
+
+                    setState(() {
+                      _roomNameController.text += e;
+                      index++;
+                    });
                   },
                   child: Container(
                     padding: const EdgeInsets.all(10.0),
@@ -173,22 +126,13 @@ class _WordScreenState extends State<WordScreen> {
                     if (e == "DEL") {
                       if (index > 0) {
                         setState(() {
-                          letters[index] = " ";
+                          _roomNameController.text = _roomNameController.text
+                              .substring(
+                                  0, _roomNameController.text.length - 1);
                           index--;
                         });
                       }
-                    } else if (e == "SUBMIT") {
-                      if (index >= _sliderValue) {
-                      } else {
-                        print(e + index.toString());
-                        if (index < _sliderValue) {
-                          setState(() {
-                            letters[index] = e;
-                            index++;
-                          });
-                        }
-                      }
-                    }
+                    } else if (e == "SUBMIT") {}
                     ;
                   },
                   child: Container(
@@ -206,6 +150,25 @@ class _WordScreenState extends State<WordScreen> {
                   ),
                 );
               }).toList(),
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        RoomBrowseScreen(), // GameScreen(_sliderValue, _roomNameController.text)
+                  ),
+                ).then((_) {
+                  // Code to execute after navigating back from GameScreen
+                  // For example, you can print a message
+                  print('Navigation to GameScreen completed.');
+                });
+              },
+              child: Text('Create Room'),
             ),
           ],
         ),

@@ -6,7 +6,7 @@ class WordleGame {
   int numColumns; // Variable to store the number of columns
 
   static String game_message = "";
-  static String game_guess = "";
+  static String game_guess = ""; // to be guessed
   static List<String> word_list = [
     "WORLD",
     "FIGHT",
@@ -28,11 +28,20 @@ class WordleGame {
   late List<List<Letter>> wordleBoard;
 
   // Constructor
-  WordleGame(this.numColumns) {
+  WordleGame(this.numColumns, String gameWord, int gameType) {
+    // 1 Random, 2 User Input
     print(numColumns);
+    print(gameWord);
+    print("Game Type: " + gameType.toString());
     wordleBoard = List.generate(
         5, (index) => List.generate(numColumns, ((index) => Letter("", 0))));
-    initGame();
+
+    if (gameType == 1)
+      initGame();
+    else {
+      game_guess = gameWord;
+      print(game_guess);
+    }
   }
 
 // The game basics function

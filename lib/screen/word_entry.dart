@@ -10,11 +10,12 @@ class WordScreen extends StatefulWidget {
 
 class _WordScreenState extends State<WordScreen> {
   int _sliderValue = 4;
-  List<String> letters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""); // Generate letters from A to Z
+  List row1 = "QWERTYUIOP".split("");
+  List row2 = "ASDEFGHJKL".split("");
+  List row3 = ["DEL", "Z", "X", "C", "V", "B", "N", "M", "SUBMIT"];
 
-  List<String> userTypedWord = List.generate(
-      7, (index) => ""); // Initialize user typed word list with empty strings
+  List<String> letters = "       ".split(""); // Generate letters from A to Z
+  int index = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -29,31 +30,20 @@ class _WordScreenState extends State<WordScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: letters.take(_sliderValue).map((letter) {
                 return InkWell(
-                  onTap: () {
-                    // Handle user tapping on the letter
-                    setState(() {
-                      // Add the tapped letter to the userTypedWord list
-                      userTypedWord.add(letter);
-                    });
-                  },
                   child: Container(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(10.0),
                     width: 64.0, // Adjust this width as needed
                     height: 64.0, // Adjust this height as needed
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.0),
-                      color: Colors.grey.shade800,
+                      color: Colors.grey.shade300,
                     ),
                     child: Center(
+                      // Center the text horizontally and vertically
                       child: Text(
-                        userTypedWord.isEmpty
-                            ? letter
-                            : userTypedWord[
-                                0], // Display the typed letter if present
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 25.0,
+                        "$letter",
+                        style: const TextStyle(
+                          fontSize: 30.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -90,10 +80,122 @@ class _WordScreenState extends State<WordScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => GameScreen(_sliderValue)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          GameScreen(_sliderValue, letters.toString())),
                 );
               },
               child: Text('Go to Another Screen'),
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: row1.map((e) {
+                return InkWell(
+                  onTap: () {
+                    print(e + index.toString());
+                    if (index < _sliderValue) {
+                      setState(() {
+                        letters[index] = e;
+                        index++;
+                      });
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.grey.shade300),
+                    child: Text(
+                      "$e",
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: row2.map((e) {
+                return InkWell(
+                  onTap: () {
+                    print(e + index.toString());
+                    if (index < _sliderValue) {
+                      setState(() {
+                        letters[index] = e;
+                        index++;
+                      });
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.grey.shade300),
+                    child: Text(
+                      "$e",
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: row3.map((e) {
+                return InkWell(
+                  onTap: () {
+                    print(e + index.toString());
+                    if (e == "DEL") {
+                      if (index > 0) {
+                        setState(() {
+                          letters[index] = " ";
+                          index--;
+                        });
+                      }
+                    } else if (e == "SUBMIT") {
+                      if (index >= _sliderValue) {
+                      } else {
+                        print(e + index.toString());
+                        if (index < _sliderValue) {
+                          setState(() {
+                            letters[index] = e;
+                            index++;
+                          });
+                        }
+                      }
+                    }
+                    ;
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.grey.shade300),
+                    child: Text(
+                      "$e",
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
         ),

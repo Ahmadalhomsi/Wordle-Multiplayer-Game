@@ -4,7 +4,8 @@ import 'package:wordle/widgets/game_keyboard.dart';
 
 class GameScreen extends StatefulWidget {
   int sliderValue;
-  GameScreen(this.sliderValue, {super.key});
+  String gameWord;
+  GameScreen(this.sliderValue, this.gameWord, {super.key});
 
   @override
   State<GameScreen> createState() => _GameScreenState(sliderValue);
@@ -14,12 +15,14 @@ class _GameScreenState extends State<GameScreen> {
   int sliderValue = 7;
   _GameScreenState(this.sliderValue);
 
+// Take the other word from the other player
+
   late final WordleGame _game;
 
   @override
   void initState() {
     super.initState();
-    _game = WordleGame(sliderValue);
+    _game = WordleGame(sliderValue, "BRAIN", 2); // 1 Random, 2 User Input
   }
 
   @override

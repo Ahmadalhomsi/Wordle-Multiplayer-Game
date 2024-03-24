@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wordle/screen/room_maker.dart';
 
 // Define a data model for a room
 class Room {
@@ -19,11 +20,15 @@ List<Room> rooms = [
 
 // Room browse screen widget
 class RoomBrowseScreen extends StatelessWidget {
+  final String playerName;
+  RoomBrowseScreen({required this.playerName});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rooms Browse'),
+        title:
+            Text('Rooms Browse - $playerName'), // Show player name in the title
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -33,7 +38,12 @@ class RoomBrowseScreen extends StatelessWidget {
                 // Handle pressing the "Create Room" button
                 print('Create Room button pressed');
                 // Navigate to the room maker screen
-                Navigator.pushNamed(context, '/room_maker');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RoomMaker(playerName),
+                  ),
+                );
               },
               child: Text(
                 'Create Room',

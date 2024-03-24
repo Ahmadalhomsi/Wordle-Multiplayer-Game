@@ -3,13 +3,17 @@ import 'package:wordle/screen/game_screen.dart';
 import 'package:wordle/screen/rooms_browser.dart';
 
 class RoomMaker extends StatefulWidget {
-  const RoomMaker({Key? key}) : super(key: key);
+  final String userName;
+  const RoomMaker(this.userName, {Key? key}) : super(key: key);
 
   @override
-  State<RoomMaker> createState() => _RoomMakerState();
+  State<RoomMaker> createState() => _RoomMakerState(this.userName);
 }
 
 class _RoomMakerState extends State<RoomMaker> {
+  final String userName;
+  _RoomMakerState(this.userName);
+
   int _sliderValue = 4;
   List row1 = "QWERTYUIOP".split("");
   List row2 = "ASDEFGHJKL".split("");
@@ -23,7 +27,8 @@ class _RoomMakerState extends State<RoomMaker> {
     return Scaffold(
       backgroundColor: const Color(0xFF212121),
       appBar: AppBar(
-        title: Text('Rooms Browse'),
+        title:
+            Text('Rooms Browse - $userName'), // Show player name in the title
       ),
       body: Center(
         child: Column(
@@ -162,8 +167,9 @@ class _RoomMakerState extends State<RoomMaker> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        RoomBrowseScreen(), // GameScreen(_sliderValue, _roomNameController.text)
+                    builder: (context) => RoomBrowseScreen(
+                      playerName: userName,
+                    ), // GameScreen(_sliderValue, _roomNameController.text)
                   ),
                 ).then((_) {
                   // Code to execute after navigating back from GameScreen

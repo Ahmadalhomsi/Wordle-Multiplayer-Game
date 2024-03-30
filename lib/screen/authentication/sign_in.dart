@@ -3,7 +3,7 @@ import 'package:wordle/services/auth_service.dart';
 import 'sign_up.dart'; // Import the SignUp screen
 
 class SignIn extends StatefulWidget {
-  const SignIn({Key? key}) : super(key: key);
+  const SignIn({super.key});
 
   @override
   _SignInState createState() => _SignInState();
@@ -21,27 +21,27 @@ class _SignInState extends State<SignIn> {
       appBar: AppBar(
         backgroundColor: Colors.brown[400],
         elevation: 0.0,
-        title: Text("Sign in Screen"),
+        title: const Text("Sign in Screen"),
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
         child: Column(
           children: [
             TextFormField(
               controller: _emailController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Email',
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextFormField(
               controller: _passwordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Password',
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 String email = _emailController.text.trim();
@@ -55,9 +55,9 @@ class _SignInState extends State<SignIn> {
                   // Optionally, you can navigate to the next screen here
                 }
               },
-              child: Text('Sign In'),
+              child: const Text('Sign In'),
             ),
-            SizedBox(
+            const SizedBox(
                 height: 20), // Add spacing between Sign In and Sign Up buttons
             ElevatedButton(
               onPressed: () {
@@ -65,10 +65,10 @@ class _SignInState extends State<SignIn> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          SignUp()), // Navigate to SignUp screen
+                          const SignUp()), // Navigate to SignUp screen
                 );
               },
-              child: Text('Sign Up'),
+              child: const Text('Sign Up'),
             ),
           ],
         ),

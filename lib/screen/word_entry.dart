@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wordle/screen/game_screen.dart';
 
 class WordScreen extends StatefulWidget {
-  const WordScreen({Key? key}) : super(key: key);
+  const WordScreen({super.key});
 
   @override
   State<WordScreen> createState() => _WordScreenState();
@@ -26,14 +26,14 @@ class _WordScreenState extends State<WordScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Room Name',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20.0,
             ),
             Row(
@@ -51,7 +51,7 @@ class _WordScreenState extends State<WordScreen> {
                     child: Center(
                       // Center the text horizontally and vertically
                       child: Text(
-                        "$letter",
+                        letter,
                         style: const TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.bold,
@@ -62,7 +62,7 @@ class _WordScreenState extends State<WordScreen> {
                 );
               }).toList(),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30.0,
             ),
             Slider(
@@ -78,12 +78,12 @@ class _WordScreenState extends State<WordScreen> {
             ),
             Text(
               'Word size: $_sliderValue',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20.0,
             ),
             ElevatedButton(
@@ -95,9 +95,9 @@ class _WordScreenState extends State<WordScreen> {
                           GameScreen(_sliderValue, letters.toString())),
                 );
               },
-              child: Text('Go to Another Screen'),
+              child: const Text('Go to Another Screen'),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20.0,
             ),
             Row(
@@ -189,7 +189,6 @@ class _WordScreenState extends State<WordScreen> {
                         }
                       }
                     }
-                    ;
                   },
                   child: Container(
                     padding: const EdgeInsets.all(10.0),

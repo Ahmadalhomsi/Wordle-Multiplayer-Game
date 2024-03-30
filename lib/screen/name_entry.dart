@@ -7,16 +7,19 @@ import '../services/auth_service.dart';
 class EnterNameScreen extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
 
+  EnterNameScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Enter Name'),
+        title: const Text('Enter Name'),
         actions: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25.0), // Add padding here
+            padding: const EdgeInsets.symmetric(
+                horizontal: 25.0), // Add padding here
             child: IconButton(
-              icon: Icon(Icons.logout),
+              icon: const Icon(Icons.logout),
               onPressed: () {
                 AuthService().signOut();
               },
@@ -32,11 +35,11 @@ class EnterNameScreen extends StatelessWidget {
           children: [
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Enter Your Name',
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 final User? u = AuthService().getXAuth().currentUser;
@@ -56,7 +59,7 @@ class EnterNameScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         ),

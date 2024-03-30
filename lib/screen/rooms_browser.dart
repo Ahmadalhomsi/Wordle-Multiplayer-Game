@@ -8,15 +8,21 @@ class Room {
   final String name;
   final String type;
   final bool isFull;
+  final int wordLength; // Add wordLength property
 
-  Room({required this.name, required this.type, required this.isFull});
+  Room({
+    required this.name,
+    required this.type,
+    required this.isFull,
+    required this.wordLength, // Initialize wordLength property
+  });
 }
 
 // Sample data for rooms
 List<Room> rooms = [
-  Room(name: 'Room 1', type: 'Random', isFull: false),
-  Room(name: 'Room 2', type: 'User Input', isFull: true),
-  Room(name: 'Room 3', type: 'Random', isFull: false),
+  Room(name: 'Room 1', type: 'Random', isFull: false, wordLength: 5),
+  Room(name: 'Room 2', type: 'User Input', isFull: true, wordLength: 6),
+  Room(name: 'Room 3', type: 'Random', isFull: false, wordLength: 7),
   // Add more room objects as needed
 ];
 
@@ -47,6 +53,11 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Filter rooms by word length (minimum 4, maximum 7)
+    List<Room> filteredRooms = rooms
+        .where((room) => room.wordLength >= 4 && room.wordLength <= 7)
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -80,7 +91,7 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
         ],
       ),
       body: ListView.separated(
-        itemCount: rooms.length,
+        itemCount: filteredRooms.length, // Use filtered rooms count
         separatorBuilder: (BuildContext context, int index) {
           return Divider(
             height: 0,
@@ -89,7 +100,7 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
           );
         },
         itemBuilder: (context, index) {
-          Room room = rooms[index];
+          Room room = filteredRooms[index]; // Use filtered rooms
           return ListTile(
             contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             title: Text(
@@ -129,6 +140,15 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
                   room.isFull ? 'Status: Full' : 'Status: Empty',
                   style: TextStyle(
                     color: room.isFull ? Colors.red : Colors.green,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                  ),
+                ),
+                SizedBox(height: 4), // Add some spacing
+                Text(
+                  'Word Length: ${room.wordLength}',
+                  style: TextStyle(
+                    color: Colors.black87,
                     fontWeight: FontWeight.w500,
                     fontSize: 14,
                   ),

@@ -32,13 +32,13 @@ class WordleGame {
     // 1 Random, 2 User Input
     print(numColumns);
     print(gameWord);
-    print("Game Type: " + gameType.toString());
+    print("Game Type: $gameType");
     wordleBoard = List.generate(
         5, (index) => List.generate(numColumns, ((index) => Letter("", 0))));
 
-    if (gameType == 1)
+    if (gameType == 1) {
       initGame();
-    else {
+    } else {
       game_guess = gameWord;
       print(game_guess);
     }

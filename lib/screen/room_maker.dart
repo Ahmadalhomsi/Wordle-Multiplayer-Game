@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:wordle/screen/game_screen.dart';
 import 'package:wordle/screen/rooms_browser.dart';
 
 class RoomMaker extends StatefulWidget {
   final String userName;
-  const RoomMaker(this.userName, {Key? key}) : super(key: key);
+  const RoomMaker(this.userName, {super.key});
 
   @override
-  State<RoomMaker> createState() => _RoomMakerState(this.userName);
+  State<RoomMaker> createState() => _RoomMakerState(userName);
 }
 
 class _RoomMakerState extends State<RoomMaker> {
   final String userName;
   _RoomMakerState(this.userName);
 
-  int _sliderValue = 4;
+  final int _sliderValue = 4;
   List row1 = "QWERTYUIOP".split("");
   List row2 = "ASDEFGHJKL".split("");
   List row3 = ["DEL", "Z", "X", "C", "V", "B", "N", "M", "SUBMIT"];
 
-  TextEditingController _roomNameController = TextEditingController();
+  final TextEditingController _roomNameController = TextEditingController();
   int index = 0;
 
   @override
@@ -35,19 +34,19 @@ class _RoomMakerState extends State<RoomMaker> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Room Name:',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20.0,
             ),
             TextField(
               controller: _roomNameController,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -60,7 +59,7 @@ class _RoomMakerState extends State<RoomMaker> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30.0,
             ),
             Row(
@@ -141,7 +140,6 @@ class _RoomMakerState extends State<RoomMaker> {
                         });
                       }
                     } else if (e == "SUBMIT") {}
-                    ;
                   },
                   child: Container(
                     padding: const EdgeInsets.all(10.0),
@@ -159,7 +157,7 @@ class _RoomMakerState extends State<RoomMaker> {
                 );
               }).toList(),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20.0,
             ),
             ElevatedButton(
@@ -174,7 +172,7 @@ class _RoomMakerState extends State<RoomMaker> {
                       '/'), // Removes all the intermediate routes
                 );
               },
-              child: Text('Create Room'),
+              child: const Text('Create Room'),
             ),
           ],
         ),

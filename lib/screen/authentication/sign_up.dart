@@ -3,43 +3,43 @@ import 'package:wordle/screen/name_entry.dart';
 import 'package:wordle/services/auth_service.dart';
 
 class SignUp extends StatelessWidget {
-  const SignUp({Key? key}) : super(key: key);
+  const SignUp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController _emailController = TextEditingController();
-    final TextEditingController _passwordController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
       backgroundColor: Colors.brown[100],
       appBar: AppBar(
         backgroundColor: Colors.brown[400],
         elevation: 0.0,
-        title: Text("Sign Up Screen"),
+        title: const Text("Sign Up Screen"),
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
         child: Column(
           children: [
             TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(
+              controller: emailController,
+              decoration: const InputDecoration(
                 labelText: 'Email',
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextFormField(
-              controller: _passwordController,
+              controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Password',
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                String email = _emailController.text.trim();
-                String password = _passwordController.text.trim();
+                String email = emailController.text.trim();
+                String password = passwordController.text.trim();
                 dynamic result = await AuthService()
                     .signUpWithEmailAndPassword(email, password);
                 if (result == null) {
@@ -53,7 +53,7 @@ class SignUp extends StatelessWidget {
                   );
                 }
               },
-              child: Text('Sign Up'),
+              child: const Text('Sign Up'),
             ),
           ],
         ),

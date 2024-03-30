@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wordle/screen/rooms_browser.dart';
+
+import '../services/auth_service.dart';
 
 class EnterNameScreen extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
@@ -8,7 +11,18 @@ class EnterNameScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Enter Your Name'),
+        title: Text('Enter Name'),
+        actions: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 25.0), // Add padding here
+            child: IconButton(
+              icon: Icon(Icons.logout),
+              onPressed: () {
+                AuthService().signOut();
+              },
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -24,14 +38,21 @@ class EnterNameScreen extends StatelessWidget {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                final User? u = AuthService().getXAuth().currentUser;
+                // Get the user ID of the current user
+                String? userId = u?.uid;
+
+                // Update the display name in Firebase Authentication
+                if (userId != null) {
+                  await u?.updateDisplayName(_nameController.text);
+                }
+
                 // Navigate to the Room Browse screen and pass the entered name
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RoomBrowseScreen(
-                      playerName: _nameController.text,
-                    ),
+                    builder: (context) => RoomBrowseScreen(),
                   ),
                 );
               },
@@ -42,10 +63,4 @@ class EnterNameScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: EnterNameScreen(),
-  ));
 }

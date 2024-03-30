@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wordle/screen/room_maker.dart';
+import 'package:wordle/services/auth_service.dart';
 
 // Define a data model for a room
 class Room {
@@ -19,16 +21,36 @@ List<Room> rooms = [
 ];
 
 // Room browse screen widget
-class RoomBrowseScreen extends StatelessWidget {
-  final String playerName;
-  RoomBrowseScreen({required this.playerName});
+class RoomBrowseScreen extends StatefulWidget {
+  RoomBrowseScreen();
+
+  @override
+  State<RoomBrowseScreen> createState() => _RoomBrowseScreenState();
+}
+
+class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
+  String? playerName;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPlayerName();
+  }
+
+  void fetchPlayerName() async {
+    // Fetch playerName from Firebase
+    User? user = AuthService().getXAuth().currentUser;
+    setState(() {
+      playerName = user?.displayName;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text('Rooms Browse - $playerName'), // Show player name in the title
+        title: Text(
+            'Rooms Browse - ${playerName}'), // Show player name in the title
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -41,7 +63,7 @@ class RoomBrowseScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RoomMaker(playerName),
+                    builder: (context) => RoomMaker(playerName!),
                   ),
                 );
               },

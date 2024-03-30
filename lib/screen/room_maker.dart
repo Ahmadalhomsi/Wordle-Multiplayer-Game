@@ -168,9 +168,7 @@ class _RoomMakerState extends State<RoomMaker> {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RoomBrowseScreen(
-                      playerName: userName,
-                    ),
+                    builder: (context) => RoomBrowseScreen(),
                   ),
                   ModalRoute.withName(
                       '/'), // Removes all the intermediate routes

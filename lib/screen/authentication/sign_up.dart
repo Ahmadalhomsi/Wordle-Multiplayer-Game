@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:wordle/screen/name_entry.dart';
 import 'package:wordle/services/auth_service.dart';
-import 'sign_up.dart'; // Import the SignUp screen
 
-class SignIn extends StatefulWidget {
-  const SignIn({Key? key}) : super(key: key);
-
-  @override
-  _SignInState createState() => _SignInState();
-}
-
-class _SignInState extends State<SignIn> {
-  final AuthService _auth = AuthService();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class SignUp extends StatelessWidget {
+  const SignUp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController _emailController = TextEditingController();
+    final TextEditingController _passwordController = TextEditingController();
+
     return Scaffold(
       backgroundColor: Colors.brown[100],
       appBar: AppBar(
         backgroundColor: Colors.brown[400],
         elevation: 0.0,
-        title: Text("Sign in Screen"),
+        title: Text("Sign Up Screen"),
       ),
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
@@ -46,27 +40,18 @@ class _SignInState extends State<SignIn> {
               onPressed: () async {
                 String email = _emailController.text.trim();
                 String password = _passwordController.text.trim();
-                dynamic result =
-                    await _auth.signInWithEmailAndPasswordX(email, password);
+                dynamic result = await AuthService()
+                    .signUpWithEmailAndPassword(email, password);
                 if (result == null) {
-                  print('Sign-in failed');
+                  print('Sign-up failed');
                 } else {
-                  print('Sign-in successful');
-                  // Optionally, you can navigate to the next screen here
+                  print('Sign-up successful');
+                  // Move the user to EnterNameScreen after successful sign-up
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => EnterNameScreen()),
+                  );
                 }
-              },
-              child: Text('Sign In'),
-            ),
-            SizedBox(
-                height: 20), // Add spacing between Sign In and Sign Up buttons
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          SignUp()), // Navigate to SignUp screen
-                );
               },
               child: Text('Sign Up'),
             ),

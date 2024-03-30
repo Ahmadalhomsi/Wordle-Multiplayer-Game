@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "786657962409",
-    "project_id": "wordle-game-fbf1b",
-    "storage_bucket": "wordle-game-fbf1b.appspot.com"
+    "project_number": "80974884525",
+    "firebase_url": "https://wordle-game-a825b-default-rtdb.firebaseio.com",
+    "project_id": "wordle-game-a825b",
+    "storage_bucket": "wordle-game-a825b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:786657962409:android:b6505ec0e4562549723cb8",
+        "mobilesdk_app_id": "1:80974884525:android:cb4caf3022c496f0b2a024",
         "android_client_info": {
           "package_name": "com.ahmad.wordle"
         }
@@ -15,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyArFDsjDUPcUsjSIYgrb24LwjMRIe9uh8U"
+          "current_key": "AIzaSyBmidvLoaPe3DYoEcFopTTMiw6kAcHP7G8"
         }
       ],
       "services": {

@@ -164,18 +164,17 @@ class _RoomMakerState extends State<RoomMaker> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                // Navigate to the RoomBrowseScreen and pass the player name
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                     builder: (context) => RoomBrowseScreen(
                       playerName: userName,
-                    ), // GameScreen(_sliderValue, _roomNameController.text)
+                    ),
                   ),
-                ).then((_) {
-                  // Code to execute after navigating back from GameScreen
-                  // For example, you can print a message
-                  print('Navigation to GameScreen completed.');
-                });
+                  ModalRoute.withName(
+                      '/'), // Removes all the intermediate routes
+                );
               },
               child: Text('Create Room'),
             ),

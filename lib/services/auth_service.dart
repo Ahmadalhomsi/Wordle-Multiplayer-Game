@@ -7,7 +7,6 @@ class AuthService {
   FirebaseAuth getXAuth() {
     return _auth;
   }
-  
 
 // create user obj based on FirebaseUser
   UserX? _userFromFirebaseUser(User user) {
@@ -24,7 +23,7 @@ class AuthService {
 
   Future signInAnon() async {
     try {
-      final result = await _auth.signInAnonymously();
+      final result = await FirebaseAuth.instance.signInAnonymously();
       final user = result.user;
       return _userFromFirebaseUser(user!); // it was user
     } catch (e) {
@@ -37,7 +36,10 @@ class AuthService {
   Future<User?> signInWithEmailAndPasswordX(
       String email, String password) async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      print('Attempting to sign in with email and password...');
+
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -53,7 +55,7 @@ class AuthService {
       String email, String password) async {
     try {
       UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -66,7 +68,7 @@ class AuthService {
 
 // Sign out
   Future<void> signOut() async {
-    await _auth.signOut();
+    await FirebaseAuth.instance.signOut();
   }
 
 /*

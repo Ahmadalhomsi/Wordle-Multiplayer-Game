@@ -1,20 +1,25 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:wordle/screen/rooms_browser.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:wordle/screen/wrapper.dart';
 
-Future<void> main() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  runApp(const MyApp());
+void main() {
+  // Run the Firebase initialization asynchronously
+  initializeFirebaseAndRunApp();
 }
 
-/*
-void main() {
-  runApp(const MyApp());
+Future<void> initializeFirebaseAndRunApp() async {
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Ensure Flutter binding is initialized
+  print("-----------+++");
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  ); // Initialize Firebase asynchronously
+  print("-----------+++");
+  runApp(
+      const MyApp()); // Run the app after Firebase initialization is complete
 }
-*/
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -28,7 +33,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Wrapper(), //  EnterNameScreen()
+      home: Wrapper(), //  EnterNameScreen()
       // routes: {
       //   '/room_maker': (context) => const RoomMaker("null"),
       // },

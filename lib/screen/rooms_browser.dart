@@ -1,30 +1,30 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:wordle/screen/game_screen.dart';
 import 'package:wordle/screen/room_maker.dart';
+import 'package:wordle/screen/word_entry.dart';
 import 'package:wordle/services/auth_service.dart';
+import 'package:wordle/services/room_services.dart';
+
+import 'waiting_screen.dart';
 
 // Define a data model for a room
 class Room {
+  final String key;
   final String name;
   final String type;
   final bool isFull;
   final int wordLength; // Add wordLength property
 
   Room({
+    required this.key,
     required this.name,
     required this.type,
     required this.isFull,
     required this.wordLength, // Initialize wordLength property
   });
 }
-
-// Sample data for rooms
-List<Room> rooms = [
-  Room(name: 'Room 1', type: 'Random', isFull: false, wordLength: 5),
-  Room(name: 'Room 2', type: 'User Input', isFull: true, wordLength: 6),
-  Room(name: 'Room 3', type: 'Random', isFull: false, wordLength: 7),
-  // Add more room objects as needed
-];
 
 // Room browse screen widget
 class RoomBrowseScreen extends StatefulWidget {
@@ -36,11 +36,14 @@ class RoomBrowseScreen extends StatefulWidget {
 
 class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
   String? playerName;
+  List<Room> rooms = []; // List to hold fetched rooms
 
   @override
   void initState() {
     super.initState();
     fetchPlayerName();
+    fetchPlayerName2();
+    fetchRooms(); // Fetch rooms when the screen loads
   }
 
   void fetchPlayerName() async {
@@ -48,6 +51,20 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
     User? user = AuthService().getXAuth().currentUser;
     setState(() {
       playerName = user?.displayName;
+    });
+  }
+
+  final databaseReference = FirebaseDatabase.instance.ref();
+
+  void fetchPlayerName2() async {
+    // Fetch playerName from Firebase
+    // Code for fetching playerName goes here
+  }
+
+  void fetchRooms() async {
+    List<Room> fetchedRooms = (await RoomService().getRooms()).cast<Room>();
+    setState(() {
+      rooms = fetchedRooms;
     });
   }
 
@@ -74,7 +91,8 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RoomMaker(playerName!),
+                    builder: (context) =>
+                        RoomMaker(playerName!, databaseReference),
                   ),
                 );
               },
@@ -91,7 +109,7 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
         ],
       ),
       body: ListView.separated(
-        itemCount: filteredRooms.length, // Use filtered rooms count
+        itemCount: rooms.length,
         separatorBuilder: (BuildContext context, int index) {
           return Divider(
             height: 0,
@@ -100,7 +118,7 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
           );
         },
         itemBuilder: (context, index) {
-          Room room = filteredRooms[index]; // Use filtered rooms
+          Room room = rooms[index]; // Use filtered rooms
           return ListTile(
             contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             title: Text(
@@ -155,9 +173,32 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
                 ),
               ],
             ),
-            onTap: () {
+            onTap: () async {
               // Handle tapping on a room, such as navigating to room details screen
               print('Tapped on room: ${room.name}');
+
+              // Allow the player to join the room
+              int hasJoined =
+                  await RoomService().joinRoom(room.key, playerName!) as int;
+              if (hasJoined == 1) {
+                // Navigate to the WaitingScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WaitingScreen(room: room),
+                  ),
+                );
+              } else if (hasJoined == 2) {
+                // Navigate to the GameScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WordScreen(room: room),
+                  ),
+                );
+              } else {
+                print("Joining failed");
+              }
             },
           );
         },

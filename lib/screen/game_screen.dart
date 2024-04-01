@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:wordle/screen/rooms_browser.dart';
+
 import 'package:wordle/utils/game_provider.dart';
 import 'package:wordle/widgets/game_keyboard.dart';
 
 class GameScreen extends StatefulWidget {
-  int sliderValue;
-  String gameWord;
-  GameScreen(this.sliderValue, this.gameWord, {super.key});
+  final Room room;
+  final String word;
+  GameScreen({required this.room, required this.word, super.key});
 
   @override
-  State<GameScreen> createState() => _GameScreenState(sliderValue);
+  State<GameScreen> createState() => _GameScreenState(room, word);
 }
 
 class _GameScreenState extends State<GameScreen> {
-  int sliderValue = 7;
-  _GameScreenState(this.sliderValue);
+  Room room;
+  String word;
+  _GameScreenState(this.room, this.word);
 
 // Take the other word from the other player
 
@@ -22,7 +25,7 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    _game = WordleGame(sliderValue, "BRAIN", 2); // 1 Random, 2 User Input
+    _game = WordleGame(room.wordLength, word, 2); // 1 Random, 2 User Input
   }
 
   @override

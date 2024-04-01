@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:wordle/screen/game_screen.dart';
+import 'package:wordle/screen/rooms_browser.dart';
 
 class WordScreen extends StatefulWidget {
-  const WordScreen({super.key});
+  final Room room;
+  const WordScreen({required this.room, super.key});
 
   @override
-  State<WordScreen> createState() => _WordScreenState();
+  State<WordScreen> createState() => _WordScreenState(room);
 }
 
 class _WordScreenState extends State<WordScreen> {
+  Room room;
   int _sliderValue = 4;
+  _WordScreenState(this.room);
+
+  @override
+  void initState() {
+    super.initState();
+    _sliderValue = room.wordLength;
+  }
+
   List row1 = "QWERTYUIOP".split("");
   List row2 = "ASDEFGHJKL".split("");
   List row3 = ["DEL", "Z", "X", "C", "V", "B", "N", "M", "SUBMIT"];
@@ -65,17 +76,6 @@ class _WordScreenState extends State<WordScreen> {
             const SizedBox(
               height: 30.0,
             ),
-            Slider(
-              value: _sliderValue.toDouble(),
-              min: 4,
-              max: 7,
-              divisions: 3,
-              onChanged: (newValue) {
-                setState(() {
-                  _sliderValue = newValue.toInt();
-                });
-              },
-            ),
             Text(
               'Word size: $_sliderValue',
               style: const TextStyle(
@@ -91,8 +91,10 @@ class _WordScreenState extends State<WordScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          GameScreen(_sliderValue, letters.toString())),
+                      builder: (context) => GameScreen(
+                            room: room,
+                            word: letters.toString(),
+                          )),
                 );
               },
               child: const Text('Go to Another Screen'),
@@ -187,6 +189,13 @@ class _WordScreenState extends State<WordScreen> {
                             index++;
                           });
                         }
+                      }
+                    } else {
+                      if (index < _sliderValue) {
+                        setState(() {
+                          letters[index] = e;
+                          index++;
+                        });
                       }
                     }
                   },

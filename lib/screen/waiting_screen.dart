@@ -27,13 +27,28 @@ class _WaitingScreenState extends State<WaitingScreen> {
     roomRef.onValue.listen((event) {
       // Check if player 2 has joined the room
       if (event.snapshot.value != null) {
+        print(event.snapshot.value); /////// heeeeeeeeer
         // Player 2 has joined, start the game (careful with null assertion!)
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => WordScreen(room: room),
-          ),
-        );
+        if (room.type == 'User Input')
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WordScreen(room: room),
+            ),
+          );
+        else if (room.type == 'Random') {
+          // generate the word here
+          String randomWord = "random";
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GameScreen(
+                room: room,
+                word: randomWord,
+              ),
+            ),
+          );
+        }
       }
     });
   }

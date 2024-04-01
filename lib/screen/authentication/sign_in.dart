@@ -44,6 +44,21 @@ class _SignInState extends State<SignIn> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
+                dynamic result = await _auth.signInAnon();
+                if (result == null) {
+                  print('Sign-in failed');
+                } else {
+                  print('Sign-in Anon successful');
+                  // Optionally, you can navigate to the next screen here
+                }
+              },
+              child: const Text('Sign In Anon'),
+            ),
+            const SizedBox(
+              height: 20.0,
+            ),
+            ElevatedButton(
+              onPressed: () async {
                 String email = _emailController.text.trim();
                 String password = _passwordController.text.trim();
                 dynamic result =

@@ -26,6 +26,8 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     _game = WordleGame(room.wordLength, word, 2); // 1 Random, 2 User Input
+    print("The word:" + word);
+    print("Word Length :" + room.wordLength.toString());
   }
 
   @override

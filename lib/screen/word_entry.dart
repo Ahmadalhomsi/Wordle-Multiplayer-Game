@@ -88,12 +88,18 @@ class _WordScreenState extends State<WordScreen> {
             ),
             ElevatedButton(
               onPressed: () {
+                String wd = "";
+                for (int i = 0; i < room.wordLength; i++) {
+                  wd += letters[i];
+                }
+                //print("XXXXXXXXXX: $wd");
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => GameScreen(
                             room: room,
-                            word: letters.toString(),
+                            word: wd,
                           )),
                 );
               },

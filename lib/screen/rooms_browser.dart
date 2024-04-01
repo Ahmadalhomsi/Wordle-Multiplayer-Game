@@ -180,6 +180,7 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
               // Allow the player to join the room
               int hasJoined =
                   await RoomService().joinRoom(room.key, playerName!) as int;
+              print("ZZZZZZZZZZZZZZ:" + hasJoined.toString());
               if (hasJoined == 1) {
                 // Navigate to the WaitingScreen
                 Navigator.push(

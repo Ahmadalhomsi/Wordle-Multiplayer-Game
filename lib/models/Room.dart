@@ -17,6 +17,17 @@ class Room {
     this.player2,
   });
 
+  // Add the factory constructor here
+  factory Room.fromJson(Map<String, dynamic> json) {
+    return Room(
+      key: json['key'] as String,
+      name: json['name'] as String,
+      type: json['type'] as String,
+      isFull: json['isFull'] as bool,
+      wordLength: json['wordLength'] as int,
+    );
+  }
+
   // Convert Room object to a Map
   Map<String, dynamic> toMap() {
     return {

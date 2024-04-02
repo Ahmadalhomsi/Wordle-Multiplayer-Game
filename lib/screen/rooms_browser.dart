@@ -7,24 +7,8 @@ import 'package:wordle/screen/word_entry.dart';
 import 'package:wordle/services/auth_service.dart';
 import 'package:wordle/services/room_services.dart';
 
+import '../models/Room.dart';
 import 'waiting_screen.dart';
-
-// Define a data model for a room
-class Room {
-  final String key;
-  final String name;
-  final String type;
-  final bool isFull;
-  final int wordLength; // Add wordLength property
-
-  Room({
-    required this.key,
-    required this.name,
-    required this.type,
-    required this.isFull,
-    required this.wordLength, // Initialize wordLength property
-  });
-}
 
 // Room browse screen widget
 class RoomBrowseScreen extends StatefulWidget {

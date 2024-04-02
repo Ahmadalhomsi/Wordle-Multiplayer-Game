@@ -17,15 +17,22 @@ class Room {
     this.player2,
   });
 
-  // Add the factory constructor here
-  factory Room.fromJson(Map<String, dynamic> json) {
+  factory Room.fromJson(Map<String, dynamic> json, String key) {
+    print('key:' + key);
     return Room(
-      key: json['key'] as String,
-      name: json['name'] as String,
-      type: json['type'] as String,
-      isFull: json['isFull'] as bool,
-      wordLength: json['wordLength'] as int,
+      key: key,
+      isFull: json['isFull'],
+      name: json['name'],
+      player1: json['player1'],
+      type: json['type'],
+      wordLength: json['wordLength'],
+      player2: json['player2'] ?? '',
     );
+  }
+
+  @override
+  String toString() {
+    return 'Room(key: $key, name: $name, type: $type, isFull: $isFull, wordLength: $wordLength)';
   }
 
   // Convert Room object to a Map

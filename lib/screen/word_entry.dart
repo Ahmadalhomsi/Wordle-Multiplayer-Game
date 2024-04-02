@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:wordle/screen/game_screen.dart';
 import 'package:wordle/screen/rooms_browser.dart';
 
+import '../models/Room.dart';
+
 class WordScreen extends StatefulWidget {
   final Room room;
   const WordScreen({required this.room, super.key});

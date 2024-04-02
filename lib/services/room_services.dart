@@ -3,6 +3,8 @@ import 'package:wordle/models/Room.dart'
     as RoomModel; // Rename the import using 'as' prefix
 import 'package:wordle/screen/rooms_browser.dart';
 
+import '../models/Room.dart';
+
 class RoomService {
   final databaseReference = FirebaseDatabase.instance.ref().child('rooms');
 

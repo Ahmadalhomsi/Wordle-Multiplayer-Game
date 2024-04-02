@@ -4,6 +4,8 @@ import 'package:wordle/screen/rooms_browser.dart';
 import 'package:wordle/utils/game_provider.dart';
 import 'package:wordle/widgets/game_keyboard.dart';
 
+import '../models/Room.dart';
+
 class GameScreen extends StatefulWidget {
   final Room room;
   final String word;

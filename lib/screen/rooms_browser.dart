@@ -162,23 +162,35 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
               print('Tapped on room: ${room.name}');
 
               // Allow the player to join the room
-              int hasJoined =
-                  await RoomService().joinRoom(room.key, playerName!) as int;
+              int hasJoined = 0;
+              try {
+                hasJoined =
+                    await RoomService().joinRoom(room.key, playerName!) as int;
+              } catch (e) {
+                //print(e);
+                print("MEGAA");
+              }
+
               print("ZZZZZZZZZZZZZZ:" + hasJoined.toString());
-              if (hasJoined == 1) {
+              if (hasJoined == 0) {
                 // Navigate to the WaitingScreen
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WaitingScreen(room: room),
+                    builder: (context) =>
+                        WaitingScreen(room: room, playerName: playerName!),
                   ),
                 );
-              } else if (hasJoined == 2) {
+              } else if (hasJoined == 1) {
                 // Navigate to the GameScreen
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WordScreen(room: room),
+                    builder: (context) => WordScreen(
+                      room: room,
+                      playerName: playerName!,
+                      playerType: 2,
+                    ),
                   ),
                 );
               } else {

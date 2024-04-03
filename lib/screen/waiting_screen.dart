@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:wordle/screen/word_entry.dart';
@@ -8,26 +11,29 @@ import 'game_screen.dart';
 
 class WaitingScreen extends StatefulWidget {
   final Room room;
-
-  const WaitingScreen({required this.room});
+  final String playerName;
+  const WaitingScreen({required this.room, required this.playerName});
 
   @override
-  _WaitingScreenState createState() => _WaitingScreenState(room);
+  _WaitingScreenState createState() => _WaitingScreenState(room, playerName);
 }
 
 class _WaitingScreenState extends State<WaitingScreen> {
   late DatabaseReference roomRef;
+  final String playerName;
+  var cancelation;
+
   Room room;
 
-  _WaitingScreenState(this.room);
+  _WaitingScreenState(this.room, this.playerName);
 
   @override
   void initState() {
     super.initState();
-    roomRef =
-        FirebaseDatabase.instance.ref().child('rooms').child(widget.room.key);
-
-    roomRef.onValue.listen((event) {
+    roomRef = FirebaseDatabase.instance.ref(
+        'rooms/${widget.room.key}'); // or .ref().child('rooms').child(widget.room.key);
+    print("Before listenning");
+    cancelation = roomRef.onValue.listen((event) {
       var snapshotValue = event.snapshot.value;
 
       if (snapshotValue != null) {
@@ -40,8 +46,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
           }
         });
 
-        Room r = Room.fromJson(snapshotMap, widget.room.key);
-
+        Room r = room.roomFromJson(snapshotMap, widget.room.key);
         // Check if player2 has entered the room
         if (r.player2 != null && r.player2!.isNotEmpty) {
           // Player 2 has joined, start the game
@@ -49,7 +54,11 @@ class _WaitingScreenState extends State<WaitingScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => WordScreen(room: room),
+                builder: (context) => WordScreen(
+                  room: room,
+                  playerName: playerName,
+                  playerType: 1,
+                ),
               ),
             );
           } else if (r.type == 'Random') {
@@ -61,6 +70,8 @@ class _WaitingScreenState extends State<WaitingScreen> {
                 builder: (context) => GameScreen(
                   room: room,
                   word: randomWord,
+                  playerName: playerName,
+                  playerType: 1,
                 ),
               ),
             );
@@ -73,6 +84,13 @@ class _WaitingScreenState extends State<WaitingScreen> {
         print("Data snapshot is null.");
       }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    print("Disposed");
+    cancelation.cancel(); // Stop listening when the state is disposed
   }
 
   @override

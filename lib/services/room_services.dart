@@ -59,13 +59,13 @@ class RoomService {
             if (roomData['player1'] == null || roomData['player1'] == '') {
               await roomRef.update({'player1': playerName});
               print('Player $playerName joined room $roomId as player1');
-              return 1;
+              return 0;
             }
             // Check if player2 is empty
             else if (roomData['player2'] == null || roomData['player2'] == '') {
               await roomRef.update({'player2': playerName, 'isFull': true});
               print('Player $playerName joined room $roomId as player2');
-              return 2;
+              return 1;
             }
           } else {
             print('Room $roomId is already full');
@@ -76,10 +76,11 @@ class RoomService {
       } else {
         print('Room $roomId does not exist');
       }
-    } catch (error) {
+    } catch (error, stackTrace) {
       print('Error joining room: $error');
+      print('Stack trace: $stackTrace');
     }
-    return 0;
+    return -99;
   }
 
   Stream<DatabaseEvent> getRoomStream(String roomId) {

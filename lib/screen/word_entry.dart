@@ -6,16 +6,23 @@ import '../models/Room.dart';
 
 class WordScreen extends StatefulWidget {
   final Room room;
-  const WordScreen({required this.room, super.key});
+  final String playerName;
+  final int playerType;
+  const WordScreen(
+      {required this.room, required this.playerName, required this.playerType});
 
   @override
-  State<WordScreen> createState() => _WordScreenState(room);
+  State<WordScreen> createState() =>
+      _WordScreenState(room, playerName, playerType);
 }
 
 class _WordScreenState extends State<WordScreen> {
-  Room room;
+  final Room room;
   int _sliderValue = 4;
-  _WordScreenState(this.room);
+  final String playerName;
+  final int playerType;
+
+  _WordScreenState(this.room, this.playerName, this.playerType);
 
   @override
   void initState() {
@@ -39,8 +46,8 @@ class _WordScreenState extends State<WordScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'Room Name',
+            Text(
+              room.name,
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -89,19 +96,39 @@ class _WordScreenState extends State<WordScreen> {
               height: 20.0,
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 String wd = "";
                 for (int i = 0; i < room.wordLength; i++) {
+                  if (letters[i] == '') {
+                    print("***** Short word *****");
+                    return null;
+                  }
+
                   wd += letters[i];
                 }
                 //print("XXXXXXXXXX: $wd");
+                room.updatePlayerWord(wd, playerType);
+                print("++++________++++");
+                String wordToGuess = '';
+                int otherPlayer = playerType == 1 ? 2 : 1;
+
+                wordToGuess =
+                    await room.listenForPlayerWordChanges('player$otherPlayer');
+
+                // Do something with the updated word
+                print('Player${otherPlayer}\'s word: $wordToGuess');
+
+                print("++++________++++" + wordToGuess);
+                print("YESSSSSSSSSSSSSSSSSSSs");
 
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => GameScreen(
                             room: room,
-                            word: wd,
+                            word: wordToGuess,
+                            playerName: playerName,
+                            playerType: playerType,
                           )),
                 );
               },

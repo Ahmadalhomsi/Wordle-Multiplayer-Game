@@ -9,16 +9,31 @@ import '../models/Room.dart';
 class GameScreen extends StatefulWidget {
   final Room room;
   final String word;
-  GameScreen({required this.room, required this.word, super.key});
+  final String playerName;
+  final int playerType;
+  GameScreen(
+      {required this.room,
+      required this.word,
+      required this.playerName,
+      required this.playerType,
+      super.key});
 
   @override
-  State<GameScreen> createState() => _GameScreenState(room, word);
+  State<GameScreen> createState() =>
+      _GameScreenState(room, word, playerName, playerType);
 }
 
 class _GameScreenState extends State<GameScreen> {
   Room room;
   String word;
-  _GameScreenState(this.room, this.word);
+  String playerName;
+  int playerType;
+  _GameScreenState(
+    this.room,
+    this.word,
+    this.playerName,
+    this.playerType,
+  );
 
 // Take the other word from the other player
 
@@ -30,6 +45,13 @@ class _GameScreenState extends State<GameScreen> {
     _game = WordleGame(room.wordLength, word, 2); // 1 Random, 2 User Input
     print("The word:" + word);
     print("Word Length :" + room.wordLength.toString());
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    room.removePlayerFromRoom(playerName);
   }
 
   @override

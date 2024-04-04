@@ -112,6 +112,23 @@ class _WordScreenState extends State<WordScreen> {
                 String wordToGuess = '';
                 int otherPlayer = playerType == 1 ? 2 : 1;
 
+                if (playerType == 1) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Row(
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(width: 16),
+                          Text(
+                              'Please wait for the other player to enter the word.'),
+                        ],
+                      ),
+                      duration:
+                          Duration(seconds: 5), // Adjust the duration as needed
+                    ),
+                  );
+                }
+
                 wordToGuess =
                     await room.listenForPlayerWordChanges('player$otherPlayer');
 
@@ -119,7 +136,7 @@ class _WordScreenState extends State<WordScreen> {
                 print('Player${otherPlayer}\'s word: $wordToGuess');
 
                 print("++++________++++" + wordToGuess);
-                print("YESSSSSSSSSSSSSSSSSSSs");
+                print("YESSSSSSSSSSSSSSSSSSS");
 
                 Navigator.push(
                   context,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:wordle/models/Room.dart'
     as RoomModel; // Rename the import using 'as' prefix
@@ -7,6 +9,39 @@ import '../models/Room.dart';
 
 class RoomService {
   final databaseReference = FirebaseDatabase.instance.ref().child('rooms');
+
+  // Function to convert list of words into a JSON format
+  String wordsToJson(List<String> words) {
+    // Convert the list of words into a JSON array
+    return json.encode(words);
+  }
+
+// Upload player guesses to Firebase
+  void uploadPlayerGuesses(List<String> guesses, String roomId, String player) {
+    String jsonGuesses = wordsToJson(guesses);
+
+    // Upload the JSON data to Firebase under the respective node
+    DatabaseReference reference = FirebaseDatabase.instance
+        .ref()
+        .child('rooms')
+        .child(roomId)
+        .child(player + 'Guesses');
+    reference.set(jsonGuesses);
+  }
+
+  Future<void> resetRoom(String roomKey) async {
+    try {
+      await databaseReference.child(roomKey).update({
+        'player1': '',
+        'player2': '',
+        'player1Word': '',
+        'player2Word': '',
+        'isFull': false,
+      });
+    } catch (error) {
+      print('Error resetting room: $error');
+    }
+  }
 
   Future<List<Room>> getRooms() async {
     List<Room> rooms = [];

@@ -10,6 +10,7 @@ import '../services/room_services.dart';
 class RoomMaker extends StatefulWidget {
   final String userName;
   final databaseReference;
+
   const RoomMaker(this.userName, this.databaseReference, {super.key});
 
   @override
@@ -97,7 +98,13 @@ class _RoomMakerState extends State<RoomMaker> {
                 items: roomTypes.map((type) {
                   return DropdownMenuItem(
                     value: type,
-                    child: Text(type),
+                    child: Text(
+                      type,
+                      style: TextStyle(
+                          color:
+                              Colors.deepPurple, // Change the color as needed
+                          fontWeight: FontWeight.bold),
+                    ),
                   );
                 }).toList(),
               ),

@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:wordle/services/room_services.dart';
 import 'package:wordle/utils/game_provider.dart';
 import 'package:wordle/widgets/game_board.dart';
 
+import '../models/Room.dart';
+
 // ignore: must_be_immutable
 class GameKeyboard extends StatefulWidget {
-  GameKeyboard(this.game, {super.key});
+  int wordLength;
+  Room room;
+  String playerName;
+  GameKeyboard(this.game, this.wordLength, this.room, this.playerName,
+      {super.key});
   WordleGame game;
 
   @override
-  State<GameKeyboard> createState() => _GameKeyboardState();
+  State<GameKeyboard> createState() =>
+      _GameKeyboardState(wordLength, room, playerName);
 }
 
 String tempWord = ""; // to delete the character after indicating it
@@ -33,6 +41,14 @@ bool characterExistsInWord(String character, String word) {
 }
 
 class _GameKeyboardState extends State<GameKeyboard> {
+  int wordLength;
+  Room room;
+  String playerName;
+
+  _GameKeyboardState(this.wordLength, this.room, this.playerName);
+
+  List<String> words = [];
+
   List row1 = "QWERTYUIOP".split("");
   List row2 = "ASDEFGHJKL".split("");
   List row3 = ["DEL", "Z", "X", "C", "V", "B", "N", "M", "SUBMIT"];
@@ -53,7 +69,7 @@ class _GameKeyboardState extends State<GameKeyboard> {
         const SizedBox(
           height: 20.0,
         ),
-        GameBoard(widget.game),
+        GameBoard(widget.game), // the squares
         const SizedBox(
           height: 40.0,
         ),
@@ -63,7 +79,7 @@ class _GameKeyboardState extends State<GameKeyboard> {
             return InkWell(
               onTap: () {
                 print(e + widget.game.letterId.toString());
-                if (widget.game.letterId < 5) {
+                if (widget.game.letterId < wordLength) {
                   setState(() {
                     widget.game.insertWord(widget.game.letterId, Letter(e, 0));
                     widget.game.letterId++;
@@ -95,7 +111,7 @@ class _GameKeyboardState extends State<GameKeyboard> {
             return InkWell(
               onTap: () {
                 print(e + widget.game.letterId.toString());
-                if (widget.game.letterId < 5) {
+                if (widget.game.letterId < wordLength) {
                   setState(() {
                     widget.game.insertWord(widget.game.letterId, Letter(e, 0));
                     widget.game.letterId++;
@@ -136,12 +152,17 @@ class _GameKeyboardState extends State<GameKeyboard> {
                     });
                   }
                 } else if (e == "SUBMIT") {
-                  if (widget.game.letterId >= 5) {
-                    print("---- Full word");
+                  if (widget.game.letterId >= wordLength) {
                     String uGuess = widget
                         .game.wordleBoard[widget.game.rowId] // user's guess
                         .map((e) => e.letter)
                         .join();
+                    print("---- Uploading word");
+                    words.add(uGuess);
+                    RoomService()
+                        .uploadPlayerGuesses(words, room.key, playerName);
+                    print("---- Full word");
+
                     int yellowCount = 0;
                     int greenCount = 0;
                     tempWord = WordleGame.game_guess;
@@ -188,7 +209,7 @@ class _GameKeyboardState extends State<GameKeyboard> {
                     widget.game.letterId = 0;
                   }
                 } else {
-                  if (widget.game.letterId < 5) {
+                  if (widget.game.letterId < wordLength) {
                     setState(() {
                       widget.game
                           .insertWord(widget.game.letterId, Letter(e, 0));

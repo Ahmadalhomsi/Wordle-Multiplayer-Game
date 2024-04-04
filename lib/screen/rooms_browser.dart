@@ -64,6 +64,13 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
         title: Text(
             'Rooms Browse - ${playerName}'), // Show player name in the title
         actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              // Refresh rooms when the refresh button is pressed
+              fetchRooms();
+            },
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(
                 horizontal: 20.0), // Adjust the padding as needed
@@ -75,8 +82,10 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        RoomMaker(playerName!, databaseReference),
+                    builder: (context) => RoomMaker(
+                      playerName!,
+                      databaseReference,
+                    ),
                   ),
                 );
               },
@@ -197,6 +206,13 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
                 print("Joining failed");
               }
             },
+            trailing: IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () async {
+                // Reset the room when the refresh button is pressed
+                await RoomService().resetRoom(room.key);
+              },
+            ),
           );
         },
       ),

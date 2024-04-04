@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'package:wordle/screen/rooms_browser.dart';
 
 import '../services/auth_service.dart';

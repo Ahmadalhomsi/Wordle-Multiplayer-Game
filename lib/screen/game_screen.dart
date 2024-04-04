@@ -74,7 +74,7 @@ class _GameScreenState extends State<GameScreen> {
             const SizedBox(
               height: 20.0,
             ),
-            GameKeyboard(_game),
+            GameKeyboard(_game, word.length, room, playerName),
           ],
         ));
   }

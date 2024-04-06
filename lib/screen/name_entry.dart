@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:wordle/screen/room_options.dart';
 
 import 'package:wordle/screen/rooms_browser.dart';
 
@@ -56,7 +57,7 @@ class EnterNameScreen extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RoomBrowseScreen(),
+                    builder: (context) => RoomOptionsScreen(),
                   ),
                 );
               },

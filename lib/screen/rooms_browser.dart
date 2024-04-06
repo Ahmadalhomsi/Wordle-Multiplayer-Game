@@ -26,7 +26,6 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
   void initState() {
     super.initState();
     fetchPlayerName();
-    fetchPlayerName2();
     fetchRooms(); // Fetch rooms when the screen loads
   }
 
@@ -39,11 +38,6 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
   }
 
   final databaseReference = FirebaseDatabase.instance.ref();
-
-  void fetchPlayerName2() async {
-    // Fetch playerName from Firebase
-    // Code for fetching playerName goes here
-  }
 
   void fetchRooms() async {
     List<Room> fetchedRooms = (await RoomService().getRooms()).cast<Room>();

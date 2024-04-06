@@ -11,16 +11,20 @@ class GameScreen extends StatefulWidget {
   final String word;
   final String playerName;
   final int playerType;
+  //final int triesCount;
   GameScreen(
       {required this.room,
       required this.word,
       required this.playerName,
       required this.playerType,
+      // required this.triesCount,
       super.key});
 
   @override
-  State<GameScreen> createState() =>
-      _GameScreenState(room, word, playerName, playerType);
+  State<GameScreen> createState() => _GameScreenState(
+        room, word, playerName, playerType,
+        //triesCount
+      );
 }
 
 class _GameScreenState extends State<GameScreen> {
@@ -28,11 +32,13 @@ class _GameScreenState extends State<GameScreen> {
   String word;
   String playerName;
   int playerType;
+  int triesCount = 3;
   _GameScreenState(
     this.room,
     this.word,
     this.playerName,
     this.playerType,
+    //this.triesCount
   );
 
 // Take the other word from the other player
@@ -42,7 +48,8 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    _game = WordleGame(room.wordLength, word, 2); // 1 Random, 2 User Input
+    _game = WordleGame(
+        room.wordLength, word, 2, triesCount); // 1 Random, 2 User Input
     print("The word:" + word);
     print("Word Length :" + room.wordLength.toString());
   }

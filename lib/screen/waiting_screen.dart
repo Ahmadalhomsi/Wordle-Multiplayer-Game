@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:html';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -63,7 +64,9 @@ class _WaitingScreenState extends State<WaitingScreen> {
             );
           } else if (r.type == 'Random') {
             // Generate the word here
-            String randomWord = "random";
+            String randomWord = generateRandomWord(room.wordLength);
+            print('Random word of length ${room.wordLength}: ${randomWord}');
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -84,6 +87,18 @@ class _WaitingScreenState extends State<WaitingScreen> {
         print("Data snapshot is null.");
       }
     });
+  }
+
+  String generateRandomWord(int length) {
+    final random = Random();
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    String word = '';
+
+    for (int i = 0; i < length; i++) {
+      word += letters[random.nextInt(letters.length)];
+    }
+
+    return word;
   }
 
   @override

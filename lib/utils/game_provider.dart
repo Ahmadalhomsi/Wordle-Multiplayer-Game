@@ -28,13 +28,13 @@ class WordleGame {
   late List<List<Letter>> wordleBoard;
 
   // Constructor
-  WordleGame(this.numColumns, String gameWord, int gameType) {
+  WordleGame(this.numColumns, String gameWord, int gameType, int tries) {
     // 1 Random, 2 User Input
     print(numColumns);
     print(gameWord);
     print("Game Type: $gameType");
-    wordleBoard = List.generate(
-        5, (index) => List.generate(numColumns, ((index) => Letter("", 0))));
+    wordleBoard = List.generate(tries,
+        (index) => List.generate(numColumns, ((index) => Letter("", 0))));
 
     if (gameType == 1) {
       initGame();

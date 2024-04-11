@@ -36,6 +36,10 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
   }
 
   final databaseReference = FirebaseDatabase.instance.ref();
+  final DatabaseReference _userRef =
+      FirebaseDatabase.instance.ref().child('users');
+  final DatabaseReference _invitationsRef =
+      FirebaseDatabase.instance.ref().child('invitations');
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +84,7 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
             itemBuilder: (context, index) {
               String playerName = players[index]['name']!;
               String playerStatus = players[index]['status']!;
+              String playerId = players[index]['id']!;
               return ListTile(
                 title: Text(playerName),
                 subtitle: Text(playerStatus),
@@ -88,6 +93,14 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
                 leading: Icon(playerStatus == 'Online'
                     ? Icons.online_prediction_rounded
                     : Icons.offline_bolt_rounded),
+                trailing: IconButton(
+                  icon: Icon(Icons.person_add),
+                  onPressed: () {
+                    // Implement your logic for inviting this player
+                    // Store the invitation in the database
+                    sendInvitation(playerId);
+                  },
+                ),
               );
             },
           );
@@ -96,8 +109,26 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
     );
   }
 
-  final DatabaseReference _userRef =
-      FirebaseDatabase.instance.ref().child('users');
+  Future<void> sendInvitation(String recipientId) async {
+    try {
+      // Get the current user's ID
+      String? currentUserId = AuthService().getXAuth().currentUser?.uid;
+      // Store the invitation in the database directly under the receiver's ID
+      await _invitationsRef.child(recipientId).set({
+        'senderId': currentUserId,
+        //'receiverId': recipientId,
+        'sentAt': DateTime.now().millisecondsSinceEpoch,
+      });
+      // Show a snackbar to indicate that the invitation was sent
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Invitation sent to $recipientId'),
+        ),
+      );
+    } catch (error) {
+      print('Error sending invitation: $error');
+    }
+  }
 
   Future<List<Map<String, String>>> _fetchPlayers() async {
     List<Map<String, String>> players = [];
@@ -112,8 +143,12 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
           usersMap.forEach((key, value) {
             String? playerName = value['name'];
             String? playerStatus = value['status'];
-            if (playerName != null && playerStatus != null) {
-              players.add({'name': playerName, 'status': playerStatus});
+            String? playerId = key;
+            if (playerName != null &&
+                playerStatus != null &&
+                playerId != null) {
+              players.add(
+                  {'name': playerName, 'status': playerStatus, 'id': playerId});
             }
           });
         }

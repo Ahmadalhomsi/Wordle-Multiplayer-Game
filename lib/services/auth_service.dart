@@ -3,6 +3,7 @@ import 'package:wordle/models/user.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  UserX? globalUser;
 
   FirebaseAuth getXAuth() {
     return _auth;
@@ -11,7 +12,13 @@ class AuthService {
 // create user obj based on FirebaseUser
   UserX? _userFromFirebaseUser(User user) {
     // convert the firebase user to UserX
-    return user != null ? UserX(uid: user.uid) : null;
+    UserX? userX =
+        user != null ? UserX(uid: user.uid, name: '', status: '') : null;
+
+    // Assign to global variable
+    globalUser = userX;
+
+    return userX;
   }
 
   // auth change user stream (similar to useEffect)

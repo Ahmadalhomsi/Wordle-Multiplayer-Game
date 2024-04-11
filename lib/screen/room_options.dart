@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:wordle/models/user.dart';
+import 'package:wordle/screen/players_browser.dart';
 import 'package:wordle/screen/rooms_browser.dart';
 
 import 'package:wordle/screen/waiting_screen.dart';
@@ -10,31 +12,48 @@ import '../models/Room.dart';
 import '../services/room_services.dart';
 
 class RoomOptionsScreen extends StatefulWidget {
+  final String name;
+
+  RoomOptionsScreen(this.name);
+
   @override
-  _RoomOptionsScreenState createState() => _RoomOptionsScreenState();
+  _RoomOptionsScreenState createState() => _RoomOptionsScreenState(this.name);
 }
 
 class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
   String _selectedGameType = 'Random'; // Default game type
   int _selectedWordLength = 4; // Default word length
   List<Room> _filteredRooms = []; // Filtered rooms based on selection
-  String? playerName;
+  //String? playerName;
   List<Room> rooms = []; // List to hold fetched rooms
+  final String name;
+  UserX? user;
+
+  _RoomOptionsScreenState(this.name);
 
   @override
   void initState() {
     super.initState();
-    fetchPlayerName();
+    setupUser();
+    //fetchPlayerName();
     fetchRooms(); // Fetch rooms when the screen loads
   }
 
-  void fetchPlayerName() async {
+  void setupUser() async {
     // Fetch playerName from Firebase
-    User? user = AuthService().getXAuth().currentUser;
-    setState(() {
-      playerName = user?.displayName;
-    });
+    user = AuthService().globalUser;
+    print("Setuping UserId" + user!.uid.toString());
+    user!.name = this.name;
+    user!.status = 'Online';
   }
+
+  // void fetchPlayerName() async {
+  //   // Fetch playerName from Firebase
+  //   User? user = AuthService().getXAuth().currentUser;
+  //   setState(() {
+  //     playerName = user?.displayName;
+  //   });
+  // }
 
   final databaseReference = FirebaseDatabase.instance.ref();
 
@@ -113,6 +132,19 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
               },
               child: Text('Browse Rooms Manually'),
             ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to the room browser screen for manual room browsing
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PlayerBrowseScreen(),
+                  ),
+                );
+              },
+              child: Text('Browse Players Manually'),
+            ),
           ],
         ),
       ),
@@ -140,7 +172,7 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
         MaterialPageRoute(
           builder: (context) => WaitingScreen(
             room: _filteredRooms.first,
-            playerName: playerName!,
+            playerName: name!,
           ),
         ),
       );

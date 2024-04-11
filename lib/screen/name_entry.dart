@@ -5,11 +5,19 @@ import 'package:wordle/screen/room_options.dart';
 import 'package:wordle/screen/rooms_browser.dart';
 
 import '../services/auth_service.dart';
+import '../services/auth_service.dart';
+import '../services/user_services.dart'; // Import EnterNameScreen
 
 class EnterNameScreen extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
-
+  var user;
   EnterNameScreen({super.key});
+
+  @override
+  Future<void> initState() async {
+    final result = await FirebaseAuth.instance.signInAnonymously();
+    user = result.user;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +61,14 @@ class EnterNameScreen extends StatelessWidget {
                   await u?.updateDisplayName(_nameController.text);
                 }
 
+                UserService().addUserIfNotExists(userId!, _nameController.text,
+                    'Online', ['User Input', '5']);
                 // Navigate to the Room Browse screen and pass the entered name
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RoomOptionsScreen(),
+                    builder: (context) =>
+                        RoomOptionsScreen(_nameController.text),
                   ),
                 );
               },

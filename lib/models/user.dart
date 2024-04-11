@@ -1,5 +1,12 @@
 class UserX {
   final String uid;
 
-  UserX({required this.uid});
+  String name;
+  String status;
+
+  UserX({
+    required this.uid,
+    required this.name,
+    required this.status,
+  });
 }

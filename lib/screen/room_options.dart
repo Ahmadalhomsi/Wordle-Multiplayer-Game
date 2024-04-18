@@ -139,7 +139,9 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PlayerBrowseScreen(),
+                    builder: (context) => PlayerBrowseScreen(
+                        gameType: _selectedGameType,
+                        wordLength: _selectedWordLength.toString()),
                   ),
                 );
               },

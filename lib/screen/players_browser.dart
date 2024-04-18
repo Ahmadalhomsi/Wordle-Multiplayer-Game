@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -8,23 +10,76 @@ import 'package:wordle/services/auth_service.dart';
 import 'package:wordle/services/room_services.dart';
 
 import '../models/Room.dart';
+import '../services/invitation_listener.dart';
 import 'waiting_screen.dart';
 
 // Room browse screen widget
 class PlayerBrowseScreen extends StatefulWidget {
-  PlayerBrowseScreen();
+  final String gameType;
+  final String wordLength;
+
+  const PlayerBrowseScreen(
+      {required this.gameType, required this.wordLength, super.key});
 
   @override
-  State<PlayerBrowseScreen> createState() => _PlayerBrowseScreenState();
+  State<PlayerBrowseScreen> createState() =>
+      _PlayerBrowseScreenState(this.gameType, this.wordLength);
 }
 
 class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
   String? playerName;
 
+  String gameType;
+  String wordLength;
+
+  late List<String> roomSettings;
+  _PlayerBrowseScreenState(this.gameType, this.wordLength);
+
+  StreamSubscription<bool>? _invitationStreamSubscription;
+
   @override
   void initState() {
     super.initState();
+    roomSettings = [];
     fetchPlayerName();
+    roomSettings.add(gameType);
+    roomSettings.add(wordLength);
+    print("My room settings:" + roomSettings.toString());
+    String userId = AuthService().getXAuth().currentUser!.uid;
+
+    ///**** listenning */
+    final listener = InvitationListener(userId);
+
+    final StreamSubscription<String?> _invitationStreamSubscription =
+        listener.listenForInvitations().listen((senderId) {
+      if (senderId != null) {
+        print("You have a new invitation from $senderId!");
+        // Handle invitation logic here (show notification, navigate to invitation screen)
+//            _invitationStreamSubscription?.cancel(); // Consider using this cautiously
+        showInvitationDialog(senderId).then((accept) {
+          if (accept != null) {
+            if (accept) {
+              // Handle accept logic (call your function here)
+            } else {
+              // Reject invitation
+              rejectInvitation(senderId);
+              //print("invitation rejected");
+            }
+          }
+        });
+      } else {
+        print("No new invitations yet.");
+      }
+    });
+    ////*** End of listenning */
+
+    print("Started Listenning for: " + userId);
+  }
+
+  @override
+  void dispose() {
+    _invitationStreamSubscription?.cancel(); // Clean up listener on dispose
+    super.dispose();
   }
 
   void fetchPlayerName() async {
@@ -161,5 +216,81 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
     }
 
     return players;
+  }
+
+  void ss(String currentUserId) {
+    DatabaseReference invitationsRef =
+        FirebaseDatabase.instance.ref().child('invitations');
+
+    invitationsRef.onChildAdded.listen((event) {
+      // Extract invitation details
+      Map<dynamic, dynamic>? invitationMap =
+          event.snapshot.value as Map<dynamic, dynamic>?;
+      if (invitationMap != null) {
+        String receiverId = invitationMap['receiverId'];
+        String senderId = invitationMap['senderId'];
+        String sentAt = invitationMap['sentAt'];
+
+        // Check if the current user is the receiver
+        if (receiverId == currentUserId) {
+          // Check if the sender is a valid user
+          DatabaseReference userRef =
+              FirebaseDatabase.instance.ref().child('users').child(senderId);
+          userRef
+              .once()
+              .then((DataSnapshot snapshot) {
+                if (snapshot.exists) {
+                  // The sender is a valid user
+                  // Handle the invitation here
+                } else {
+                  // The sender does not exist in the database
+                  print('Invalid sender: $senderId');
+                }
+              } as FutureOr Function(DatabaseEvent value))
+              .catchError((error) {
+            print('Error checking sender: $error');
+          });
+        }
+      }
+    });
+  }
+
+  Future<bool?> showInvitationDialog(String invitationId) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Invitation'),
+        content: Text('Do you want to accept this invitation?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), // Accept
+            child: Text('Accept'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // Reject
+            child: Text('Reject'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> rejectInvitation(String invitationId) async {
+    try {
+      // Get a reference to the specific invitation
+      final invitationRef = _invitationsRef.child(invitationId);
+
+      // Delete the invitation at the given ID
+      await invitationRef.remove();
+
+      // Show a snackbar to indicate that the invitation was rejected
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Invitation rejected'),
+        ),
+      );
+    } catch (error) {
+      print('Error rejecting invitation: $error');
+    }
   }
 }

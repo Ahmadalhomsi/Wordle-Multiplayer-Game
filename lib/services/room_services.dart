@@ -125,4 +125,93 @@ class RoomService {
     // Return a stream of database events (such as data changes) for the room reference
     return roomRef.onValue;
   }
+
+  Future<Room?> findAvailableRoom(String type, String wordLength) async {
+    DatabaseReference roomsRef = FirebaseDatabase.instance.ref().child('rooms');
+
+    try {
+      DataSnapshot snapshot = await roomsRef.get();
+      if (snapshot.exists) {
+        Map<dynamic, dynamic>? roomsMap =
+            snapshot.value as Map<dynamic, dynamic>?;
+
+        if (roomsMap != null) {
+          for (var entry in roomsMap.entries) {
+            String roomId = entry.key;
+            Map<dynamic, dynamic>? roomData =
+                entry.value as Map<dynamic, dynamic>?;
+
+            if (roomData != null &&
+                roomData['isFull'] == true &&
+                roomData['type'] == type &&
+                roomData['wordLength'] == int.parse(wordLength)) {
+              // Reset room if not empty
+              await resetRoom(roomId);
+              Room xroom = Room(
+                  key: roomId,
+                  name: roomData['name'],
+                  type: type,
+                  isFull: false,
+                  wordLength: int.parse(wordLength));
+              return xroom;
+            } else if (roomData != null &&
+                roomData['isFull'] == false &&
+                roomData['type'] == type &&
+                roomData['wordLength'] == int.parse(wordLength)) {
+              // Reset room if not empty
+              Room xroom = Room(
+                  key: roomId,
+                  name: roomData['name'],
+                  type: type,
+                  isFull: false,
+                  wordLength: int.parse(wordLength));
+              return xroom;
+            }
+          }
+        }
+      } else {
+        print('No rooms found in the database.');
+      }
+    } catch (error) {
+      print('Error finding available room: $error');
+      // Handle error accordingly
+    }
+  }
+
+  Future<Room?> getRoomById(String roomId) async {
+    DatabaseReference roomRef =
+        FirebaseDatabase.instance.ref().child('rooms').child(roomId);
+
+    try {
+      DataSnapshot snapshot = await roomRef.get();
+      if (snapshot.exists) {
+        Map<dynamic, dynamic>? roomData =
+            snapshot.value as Map<dynamic, dynamic>?;
+
+        if (roomData != null) {
+          String type = roomData['type'];
+          String name = roomData['name'];
+          bool isFull = roomData['isFull'];
+          int wordLength = roomData['wordLength'];
+
+          // Create and return the Room object
+          Room room = Room(
+            key: roomId,
+            name: name,
+            type: type,
+            isFull: isFull,
+            wordLength: wordLength,
+          );
+          return room;
+        }
+      } else {
+        print('Room with ID $roomId not found in the database.');
+      }
+    } catch (error) {
+      print('Error getting room with ID $roomId: $error');
+      // Handle error accordingly
+    }
+
+    return null; // Return null if the room is not found or if there's an error
+  }
 }

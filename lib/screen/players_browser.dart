@@ -31,27 +31,26 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
 
   String gameType;
   String wordLength;
+  String userId = AuthService().getXAuth().currentUser!.uid;
 
-  late List<String> roomSettings;
   _PlayerBrowseScreenState(this.gameType, this.wordLength);
 
-  StreamSubscription<bool>? _invitationStreamSubscription;
+  late StreamSubscription<String?> _invitationStreamSubscription;
 
   @override
   void initState() {
     super.initState();
-    roomSettings = [];
+
     fetchPlayerName();
-    roomSettings.add(gameType);
-    roomSettings.add(wordLength);
-    print("My room settings:" + roomSettings.toString());
-    String userId = AuthService().getXAuth().currentUser!.uid;
+
+    print("My room settings: " + gameType + ", " + wordLength);
 
     ///**** listenning */
     final listener = InvitationListener(userId);
 
-    final StreamSubscription<String?> _invitationStreamSubscription =
+    _invitationStreamSubscription =
         listener.listenForInvitations().listen((senderId) {
+      // the senderId is also the invitation ID
       if (senderId != null) {
         print("You have a new invitation from $senderId!");
         // Handle invitation logic here (show notification, navigate to invitation screen)
@@ -60,6 +59,7 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
           if (accept != null) {
             if (accept) {
               // Handle accept logic (call your function here)
+              acceptInvitation(senderId, userId, wordLength, gameType);
             } else {
               // Reject invitation
               rejectInvitation(senderId);
@@ -174,14 +174,41 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
         //'receiverId': recipientId,
         'sentAt': DateTime.now().millisecondsSinceEpoch,
       });
+
       // Show a snackbar to indicate that the invitation was sent
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Invitation sent to $recipientId'),
         ),
       );
+
+      print("VVVV: " + recipientId);
+
+      // Wait for the room to become available
+      String? roomId = await listenForInvitationRoomUpdate(recipientId);
+
+      if (roomId != null) {
+        print('Room available! roomId: $roomId');
+        // Join the room using the roomId
+        Room? room = await RoomService().getRoomById(roomId);
+        RoomService().joinRoom(roomId, recipientId);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WordScreen(
+              room: room!,
+              playerName: playerName!,
+              playerType: 2,
+            ),
+          ),
+        );
+      } else {
+        print('Room not available.');
+      }
+
+      print("End of listen");
     } catch (error) {
-      print('Error sending invitation: $error');
+      print('Error sending invitation:');
     }
   }
 
@@ -216,43 +243,6 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
     }
 
     return players;
-  }
-
-  void ss(String currentUserId) {
-    DatabaseReference invitationsRef =
-        FirebaseDatabase.instance.ref().child('invitations');
-
-    invitationsRef.onChildAdded.listen((event) {
-      // Extract invitation details
-      Map<dynamic, dynamic>? invitationMap =
-          event.snapshot.value as Map<dynamic, dynamic>?;
-      if (invitationMap != null) {
-        String receiverId = invitationMap['receiverId'];
-        String senderId = invitationMap['senderId'];
-        String sentAt = invitationMap['sentAt'];
-
-        // Check if the current user is the receiver
-        if (receiverId == currentUserId) {
-          // Check if the sender is a valid user
-          DatabaseReference userRef =
-              FirebaseDatabase.instance.ref().child('users').child(senderId);
-          userRef
-              .once()
-              .then((DataSnapshot snapshot) {
-                if (snapshot.exists) {
-                  // The sender is a valid user
-                  // Handle the invitation here
-                } else {
-                  // The sender does not exist in the database
-                  print('Invalid sender: $senderId');
-                }
-              } as FutureOr Function(DatabaseEvent value))
-              .catchError((error) {
-            print('Error checking sender: $error');
-          });
-        }
-      }
-    });
   }
 
   Future<bool?> showInvitationDialog(String invitationId) async {
@@ -292,5 +282,88 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
     } catch (error) {
       print('Error rejecting invitation: $error');
     }
+  }
+
+  Future<void> acceptInvitation(
+      String senderId, String userId, String wordLength, String type) async {
+    try {
+      // Get a reference to the specific invitation
+      Room? xroom = await RoomService().findAvailableRoom(type, wordLength);
+      if (xroom != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Room Found'),
+          ),
+        );
+        /*
+        int assign = await RoomService().joinRoom(roomKey, playerName!);
+
+        if (assign == 0)
+          print("Joined as player1");
+        else if (assign == 1)
+          print("Joined as player2");
+        else
+          print("Join failed");
+          */
+
+        await setOrUpdateInvitationRoomId(senderId, xroom.key);
+        RoomService().joinRoom(xroom.key, userId);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  WaitingScreen(room: xroom!, playerName: playerName!)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Room not found'),
+          ),
+        );
+      }
+      // Show a snackbar to indicate that the invitation was rejected
+    } catch (error) {
+      print('Error accepting invitation: $error');
+    }
+  }
+
+  Future<void> setOrUpdateInvitationRoomId(
+      String invitationId, String roomId) async {
+    DatabaseReference invitationRef = FirebaseDatabase.instance
+        .ref()
+        .child('invitations')
+        .child(invitationId);
+
+    try {
+      await invitationRef.update({'roomId': roomId});
+      print('Successfully set roomId for invitation: $invitationId');
+    } catch (error) {
+      print('Error setting roomId for invitation: $error');
+      // Handle error accordingly (e.g., retry or notify user)
+    }
+  }
+
+  Future<String?> listenForInvitationRoomUpdate(String invitationId) async {
+    Completer<String?> completer = Completer<String?>();
+
+    DatabaseReference invitationRef = FirebaseDatabase.instance
+        .ref()
+        .child('invitations')
+        .child(invitationId);
+
+    invitationRef.onValue.listen((event) {
+      DataSnapshot snapshot = event.snapshot;
+      if (snapshot.exists) {
+        Map<dynamic, dynamic>? invitationData = snapshot.value as Map?;
+        if (invitationData!.containsKey('roomId')) {
+          String roomId = invitationData['roomId'];
+          completer.complete(roomId); // Resolve the completer with roomId
+          // You might want to unsubscribe from the listener here
+          // to avoid unnecessary listening after the room is available.
+        }
+      }
+    });
+
+    return completer.future;
   }
 }

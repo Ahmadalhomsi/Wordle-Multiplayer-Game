@@ -171,7 +171,7 @@ class _RoomBrowseScreenState extends State<RoomBrowseScreen> {
                     await RoomService().joinRoom(room.key, playerName!) as int;
               } catch (e) {
                 //print(e);
-                print("MEGAA");
+                print("Error Joining the room");
               }
 
               print("ZZZZZZZZZZZZZZ:" + hasJoined.toString());

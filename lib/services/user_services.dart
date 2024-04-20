@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:wordle/services/room_services.dart';
@@ -95,5 +97,35 @@ class UserService {
 
     // Remove the invitation
     await _invitationRef.child(userId).child(roomId).remove();
+  }
+
+
+  String generateRandomWord(int length) {
+    final random = Random();
+
+    // List of words with lengths between 4 and 7 characters
+    final wordList = [
+      'apple',
+      'banana',
+      'orange',
+      'grape',
+      'melon',
+      'peach',
+      'pear',
+      'kiwi',
+      'plum'
+    ];
+
+    // Filter words from the list that match the desired length
+    final filteredWords =
+        wordList.where((word) => word.length == length).toList();
+
+    // If there are no words of the desired length, return an empty string
+    if (filteredWords.isEmpty) {
+      return '';
+    }
+
+    // Choose a random word from the filtered list
+    return filteredWords[random.nextInt(filteredWords.length)];
   }
 }

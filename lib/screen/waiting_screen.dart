@@ -50,6 +50,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
         // Check if player2 has entered the room
         if (r.player2 != null && r.player2!.isNotEmpty) {
           // Player 2 has joined, start the game
+          print("***************++++++ " + r.type);
           if (r.type == 'User Input') {
             Navigator.pushReplacement(
               context,
@@ -61,23 +62,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
                 ),
               ),
             );
-          } else if (r.type == 'Random') {
-            // Generate the word here
-            String randomWord = generateRandomWord(room.wordLength);
-            print('Random word of length ${room.wordLength}: ${randomWord}');
-
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => GameScreen(
-                  room: room,
-                  word: randomWord,
-                  playerName: playerName,
-                  playerType: 1,
-                ),
-              ),
-            );
-          }
+          } 
         } else {
           // Player 2 hasn't joined yet, continue waiting
           print("Player 2 hasn't joined yet.");
@@ -88,17 +73,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
     });
   }
 
-  String generateRandomWord(int length) {
-    final random = Random();
-    const letters = 'abcdefghijklmnopqrstuvwxyz';
-    String word = '';
-
-    for (int i = 0; i < length; i++) {
-      word += letters[random.nextInt(letters.length)];
-    }
-
-    return word;
-  }
+  
 
   @override
   void dispose() {

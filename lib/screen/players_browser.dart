@@ -8,6 +8,7 @@ import 'package:wordle/screen/room_maker.dart';
 import 'package:wordle/screen/word_entry.dart';
 import 'package:wordle/services/auth_service.dart';
 import 'package:wordle/services/room_services.dart';
+import 'package:wordle/services/user_services.dart';
 
 import '../models/Room.dart';
 import '../services/invitation_listener.dart';
@@ -55,11 +56,14 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
         print("You have a new invitation from $senderId!");
         // Handle invitation logic here (show notification, navigate to invitation screen)
 //            _invitationStreamSubscription?.cancel(); // Consider using this cautiously
-        showInvitationDialog(senderId).then((accept) {
+        Duration timeout = Duration(seconds: 10);
+
+        showInvitationDialogWithTimeout(senderId, timeout).then((accept) {
           if (accept != null) {
             if (accept) {
               // Handle accept logic (call your function here)
-              acceptInvitation(senderId, userId, wordLength, gameType);
+              acceptInvitation(senderId, userId, gameType, wordLength);
+              _invitationStreamSubscription.cancel();
             } else {
               // Reject invitation
               rejectInvitation(senderId);
@@ -79,6 +83,8 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
   @override
   void dispose() {
     _invitationStreamSubscription?.cancel(); // Clean up listener on dispose
+    print("_invitationStreamSubscription?.cancel()");
+    //UserService().updateUserStatus(userId, 'Offline');
     super.dispose();
   }
 
@@ -121,7 +127,7 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
 
   Widget _buildPlayersList() {
     return FutureBuilder(
-      future: _fetchPlayers(),
+      future: _fetchPlayers([gameType, wordLength]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -153,7 +159,7 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
                   onPressed: () {
                     // Implement your logic for inviting this player
                     // Store the invitation in the database
-                    sendInvitation(playerId);
+                    sendInvitation(playerId, gameType);
                   },
                 ),
               );
@@ -164,7 +170,7 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
     );
   }
 
-  Future<void> sendInvitation(String recipientId) async {
+  Future<void> sendInvitation(String recipientId, String gameType) async {
     try {
       // Get the current user's ID
       String? currentUserId = AuthService().getXAuth().currentUser?.uid;
@@ -192,16 +198,35 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
         // Join the room using the roomId
         Room? room = await RoomService().getRoomById(roomId);
         RoomService().joinRoom(roomId, recipientId);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => WordScreen(
-              room: room!,
-              playerName: playerName!,
-              playerType: 2,
+
+        if (gameType == "User Input") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WordScreen(
+                room: room!,
+                playerName: playerName!,
+                playerType: 1,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          String randomWord =
+              UserService().generateRandomWord(room!.wordLength).toUpperCase();
+          print('Random word of length ${room.wordLength}: ${randomWord}');
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GameScreen(
+                room: room,
+                word: randomWord,
+                playerName: playerName!,
+                playerType: 1,
+              ),
+            ),
+          );
+        }
       } else {
         print('Room not available.');
       }
@@ -212,7 +237,8 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
     }
   }
 
-  Future<List<Map<String, String>>> _fetchPlayers() async {
+  Future<List<Map<String, String>>> _fetchPlayers(
+      List<String> roomSettings) async {
     List<Map<String, String>> players = [];
 
     try {
@@ -226,13 +252,22 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
             String? playerName = value['name'];
             String? playerStatus = value['status'];
             String? playerId = key;
+            List<String>? userRoomSettings =
+                value['roomSettings']?.cast<String>();
+
+            // Check if the player has the same roomSettings and roomSettings exist
             if (playerName != null &&
                 playerStatus != null &&
-                playerId != null) {
+                playerId != null &&
+                userRoomSettings != null &&
+                _isSameRoomSettings(roomSettings, userRoomSettings)) {
               players.add(
                   {'name': playerName, 'status': playerStatus, 'id': playerId});
             }
           });
+
+          // Sort players alphabetically by name
+          players.sort((a, b) => a['name']!.compareTo(b['name']!));
         }
       } else {
         print('No players found in the database.');
@@ -245,24 +280,76 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
     return players;
   }
 
-  Future<bool?> showInvitationDialog(String invitationId) async {
-    return await showDialog<bool>(
+// Helper function to check if two lists have the same elements
+  bool _isSameRoomSettings(
+      List<String> roomSettings1, List<String> roomSettings2) {
+    // Sort both lists and compare them
+    roomSettings1.sort();
+    roomSettings2.sort();
+    return roomSettings1.toString() == roomSettings2.toString();
+  }
+
+  Future<bool?> showInvitationDialogWithTimeout(
+      String invitationId, Duration timeout) async {
+    Completer<bool?> completer =
+        Completer(); // Use a completer for timeout handling
+
+    showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Invitation'),
-        content: Text('Do you want to accept this invitation?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, true), // Accept
-            child: Text('Accept'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, false), // Reject
-            child: Text('Reject'),
-          ),
-        ],
+      barrierDismissible:
+          false, // Prevent dismissal by tapping outside the dialog
+      builder: (context) => WillPopScope(
+        // Prevent accidental dismissal by back button during timer
+        onWillPop: () => Future.value(false), // Always return false
+        child: AlertDialog(
+          title: Text('Invitation'),
+          content: Text('Do you want to accept this invitation?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                completer.complete(true); // Complete with true for accept
+                Navigator.pop(context);
+              },
+              child: Text('Accept'),
+            ),
+            TextButton(
+              onPressed: () {
+                completer.complete(false); // Complete with false for reject
+                Navigator.pop(context);
+              },
+              child: Text('Reject'),
+            ),
+          ],
+        ),
       ),
     );
+
+    // Start a timer to handle automatic rejection after timeout
+    Timer timer = Timer.periodic(Duration(seconds: 1), (t) {
+      int remainingSeconds =
+          timeout.inSeconds - t.tick; // Calculate remaining seconds
+
+      // Print the remaining seconds to the console
+      print('Time remaining: $remainingSeconds seconds');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Time remaining: $remainingSeconds seconds'),
+          duration: const Duration(milliseconds: 100),
+        ),
+      );
+
+      if (!completer.isCompleted && remainingSeconds <= 0) {
+        completer.complete(false); // Complete with false for automatic reject
+        Navigator.pop(context);
+        t.cancel(); // Cancel timer on completion or timeout
+      }
+    });
+
+    // Wait for user response or timeout
+    bool? result = await completer.future;
+    timer.cancel(); // Cancel timer after getting a response
+
+    return result;
   }
 
   Future<void> rejectInvitation(String invitationId) async {
@@ -285,7 +372,7 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
   }
 
   Future<void> acceptInvitation(
-      String senderId, String userId, String wordLength, String type) async {
+      String senderId, String userId, String type, String wordLength) async {
     try {
       // Get a reference to the specific invitation
       Room? xroom = await RoomService().findAvailableRoom(type, wordLength);
@@ -308,12 +395,33 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
 
         await setOrUpdateInvitationRoomId(senderId, xroom.key);
         RoomService().joinRoom(xroom.key, userId);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  WaitingScreen(room: xroom!, playerName: playerName!)),
-        );
+        if (type == "User Input") {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => WordScreen(
+                  room: xroom!,
+                  playerName: playerName!,
+                  playerType: 2,
+                ),
+              ));
+        } else {
+          String randomWord =
+              UserService().generateRandomWord(xroom.wordLength).toUpperCase();
+          print('Random word of length ${xroom.wordLength}: ${randomWord}');
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GameScreen(
+                room: xroom,
+                word: randomWord,
+                playerName: playerName!,
+                playerType: 2,
+              ),
+            ),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

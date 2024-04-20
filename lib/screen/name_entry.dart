@@ -62,7 +62,7 @@ class EnterNameScreen extends StatelessWidget {
                 }
 
                 UserService().addUserIfNotExists(userId!, _nameController.text,
-                    'Online', ['User Input', '5']);
+                    'Online', ['User Input', '0']);
                 // Navigate to the Room Browse screen and pass the entered name
                 Navigator.pushReplacement(
                   context,

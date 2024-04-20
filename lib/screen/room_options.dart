@@ -7,6 +7,7 @@ import 'package:wordle/screen/rooms_browser.dart';
 
 import 'package:wordle/screen/waiting_screen.dart';
 import 'package:wordle/services/auth_service.dart';
+import 'package:wordle/services/user_services.dart';
 
 import '../models/Room.dart';
 import '../services/room_services.dart';
@@ -27,7 +28,7 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
   //String? playerName;
   List<Room> rooms = []; // List to hold fetched rooms
   final String name;
-  UserX? user;
+  late User user;
 
   _RoomOptionsScreenState(this.name);
 
@@ -41,10 +42,11 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
 
   void setupUser() async {
     // Fetch playerName from Firebase
-    user = AuthService().globalUser;
-    print("Setuping UserId" + user!.uid.toString());
-    user!.name = this.name;
-    user!.status = 'Online';
+    try {
+      user = AuthService().getXAuth().currentUser!;
+    } catch (e) {
+      print("error setup the suer");
+    }
   }
 
   // void fetchPlayerName() async {
@@ -117,7 +119,7 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
                 // Automatically select and enter the player into the first room in the filtered list
                 _enterRoomAutomatically();
               },
-              child: Text('OK'),
+              child: Text('Enter the room'),
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -134,8 +136,15 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Navigate to the room browser screen for manual room browsing
+                try {
+                  await UserService().updateUserRoomSettings(user!.uid,
+                      [_selectedGameType, _selectedWordLength.toString()]);
+                } catch (e) {
+                  print("Error updating User Room Settings ~" + e.toString());
+                }
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -145,7 +154,7 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
                   ),
                 );
               },
-              child: Text('Browse Players Manually'),
+              child: Text('Browse Players'),
             ),
           ],
         ),

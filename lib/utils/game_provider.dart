@@ -33,7 +33,8 @@ class WordleGame {
     print(numColumns);
     print(gameWord);
     print("Game Type: $gameType");
-    wordleBoard = List.generate(tries,
+    wordleBoard = List.generate(
+        numColumns, // old: tries,
         (index) => List.generate(numColumns, ((index) => Letter("", 0))));
 
     if (gameType == 1) {

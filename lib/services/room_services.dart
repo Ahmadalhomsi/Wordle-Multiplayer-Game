@@ -17,7 +17,8 @@ class RoomService {
   }
 
 // Upload player guesses to Firebase
-  void uploadPlayerGuesses(List<String> guesses, String roomId, String player) {
+  void uploadPlayerGuesses(
+      List<String> guesses, String roomId, String player, int playerType) {
     String jsonGuesses = wordsToJson(guesses);
 
     // Upload the JSON data to Firebase under the respective node
@@ -25,7 +26,7 @@ class RoomService {
         .ref()
         .child('rooms')
         .child(roomId)
-        .child(player + 'Guesses');
+        .child('player' + playerType.toString() + "_Guesses");
     reference.set(jsonGuesses);
   }
 
@@ -37,6 +38,9 @@ class RoomService {
         'player1Word': '',
         'player2Word': '',
         'isFull': false,
+        'winner': '',
+        'player1_Guesses': '',
+        'player2_Guesses': '',
       });
     } catch (error) {
       print('Error resetting room: $error');
@@ -82,6 +86,7 @@ class RoomService {
 
   Future<int> joinRoom(String roomId, String playerName) async {
     try {
+      print("joining Room: " + roomId + " by" + playerName);
       DatabaseReference roomRef = databaseReference.child(roomId);
       DataSnapshot snapshot = await roomRef.get();
       if (snapshot.exists) {
@@ -213,5 +218,61 @@ class RoomService {
     }
 
     return null; // Return null if the room is not found or if there's an error
+  }
+
+  Future<void> leaveRoom(String roomId, String playerName) async {
+    try {
+      DatabaseReference roomRef = databaseReference.child(roomId);
+      DataSnapshot snapshot = await roomRef.get();
+      if (snapshot.exists) {
+        Map<dynamic, dynamic>? roomData =
+            snapshot.value as Map<dynamic, dynamic>?;
+        if (roomData != null) {
+          // Check if the player is in the room
+          if (roomData['player1'] == playerName) {
+            await roomRef.update({'player1': ''});
+            print('Player $playerName left room $roomId');
+          } else if (roomData['player2'] == playerName) {
+            await roomRef.update({'player2': '', 'isFull': false});
+            print('Player $playerName left room $roomId');
+          } else {
+            print('Player $playerName is not in room $roomId');
+          }
+        } else {
+          print('Room data is null or invalid');
+        }
+      } else {
+        print('Room $roomId does not exist');
+      }
+    } catch (error, stackTrace) {
+      print('Error leaving room: $error');
+      print('Stack trace: $stackTrace');
+    }
+  }
+
+  Future<bool> setTheWinner(String roomId, String playerName) async {
+    try {
+      DatabaseReference roomRef = databaseReference.child(roomId);
+      DataSnapshot snapshot = await roomRef.child('winner').get();
+
+      if (snapshot.value == null || snapshot.value == '') {
+        await roomRef.child('winner').set(playerName);
+        print('$playerName Wins.');
+        return true; // Winner was set successfully
+      } else {
+        print('Winner is already set.');
+        try {
+          resetRoom(roomId);
+        } catch (e) {
+          print("Error reseting the room in the setTheWinner func");
+        }
+
+        return false; // Winner already exists
+      }
+    } catch (error) {
+      print('Error setting the winner: $error');
+      // Handle error accordingly
+      return false; // Return false in case of error
+    }
   }
 }

@@ -55,13 +55,14 @@ class Room {
     }
   }
 
+  late StreamSubscription<DatabaseEvent> playerWordChangesListener;
   Future<String> listenForPlayerWordChanges(String playerName) async {
     Completer<String> completer = Completer<String>();
     var roomRef =
         FirebaseDatabase.instance.ref('rooms/${key}/${playerName}Word');
     print("Listenning .........++" + key);
 
-    roomRef.onValue.listen(
+    playerWordChangesListener = roomRef.onValue.listen(
       (event) {
         final data = event.snapshot.value;
         print("DATAAAA:" + data.toString());

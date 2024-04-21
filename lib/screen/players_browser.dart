@@ -18,13 +18,17 @@ import 'waiting_screen.dart';
 class PlayerBrowseScreen extends StatefulWidget {
   final String gameType;
   final String wordLength;
+  final String playerName;
 
   const PlayerBrowseScreen(
-      {required this.gameType, required this.wordLength, super.key});
+      {required this.playerName,
+      required this.gameType,
+      required this.wordLength,
+      super.key});
 
   @override
   State<PlayerBrowseScreen> createState() =>
-      _PlayerBrowseScreenState(this.gameType, this.wordLength);
+      _PlayerBrowseScreenState(this.playerName, this.gameType, this.wordLength);
 }
 
 class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
@@ -34,15 +38,13 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
   String wordLength;
   String userId = AuthService().getXAuth().currentUser!.uid;
 
-  _PlayerBrowseScreenState(this.gameType, this.wordLength);
+  _PlayerBrowseScreenState(this.playerName, this.gameType, this.wordLength);
 
   late StreamSubscription<String?> _invitationStreamSubscription;
 
   @override
   void initState() {
     super.initState();
-
-    fetchPlayerName();
 
     print("My room settings: " + gameType + ", " + wordLength);
 
@@ -88,14 +90,6 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
     super.dispose();
   }
 
-  void fetchPlayerName() async {
-    // Fetch playerName from Firebase
-    User? user = AuthService().getXAuth().currentUser;
-    setState(() {
-      playerName = user?.displayName;
-    });
-  }
-
   final databaseReference = FirebaseDatabase.instance.ref();
   final DatabaseReference _userRef =
       FirebaseDatabase.instance.ref().child('users');
@@ -116,7 +110,9 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
       actions: [
         IconButton(
           icon: Icon(Icons.refresh),
-          onPressed: fetchPlayerName,
+          onPressed: () {
+            setState(() {});
+          },
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -197,7 +193,7 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
         print('Room available! roomId: $roomId');
         // Join the room using the roomId
         Room? room = await RoomService().getRoomById(roomId);
-        RoomService().joinRoom(roomId, recipientId);
+        await RoomService().joinRoom(roomId, playerName!);
 
         if (gameType == "User Input") {
           Navigator.push(
@@ -394,7 +390,12 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
           */
 
         await setOrUpdateInvitationRoomId(senderId, xroom.key);
-        RoomService().joinRoom(xroom.key, userId);
+
+        // Join the room after the other user joins after (2 seconds)
+        Future.delayed(Duration(seconds: 2), () async {
+          await RoomService().joinRoom(xroom.key, playerName!);
+        });
+
         if (type == "User Input") {
           Navigator.push(
               context,

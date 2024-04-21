@@ -13,24 +13,25 @@ import '../models/Room.dart';
 import '../services/room_services.dart';
 
 class RoomOptionsScreen extends StatefulWidget {
-  final String name;
+  final String playerName;
 
-  RoomOptionsScreen(this.name);
+  RoomOptionsScreen(this.playerName);
 
   @override
-  _RoomOptionsScreenState createState() => _RoomOptionsScreenState(this.name);
+  _RoomOptionsScreenState createState() =>
+      _RoomOptionsScreenState(this.playerName);
 }
 
 class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
   String _selectedGameType = 'Random'; // Default game type
   int _selectedWordLength = 4; // Default word length
   List<Room> _filteredRooms = []; // Filtered rooms based on selection
-  //String? playerName;
+  //String? playerplayerName;
   List<Room> rooms = []; // List to hold fetched rooms
-  final String name;
+  final String playerName;
   late User user;
 
-  _RoomOptionsScreenState(this.name);
+  _RoomOptionsScreenState(this.playerName);
 
   @override
   void initState() {
@@ -149,6 +150,7 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => PlayerBrowseScreen(
+                        playerName: playerName,
                         gameType: _selectedGameType,
                         wordLength: _selectedWordLength.toString()),
                   ),
@@ -183,7 +185,7 @@ class _RoomOptionsScreenState extends State<RoomOptionsScreen> {
         MaterialPageRoute(
           builder: (context) => WaitingScreen(
             room: _filteredRooms.first,
-            playerName: name!,
+            playerName: playerName!,
           ),
         ),
       );

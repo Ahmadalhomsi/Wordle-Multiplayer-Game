@@ -10,13 +10,15 @@ class GameKeyboard extends StatefulWidget {
   int wordLength;
   Room room;
   String playerName;
-  GameKeyboard(this.game, this.wordLength, this.room, this.playerName,
+  int playerType;
+  GameKeyboard(
+      this.game, this.wordLength, this.room, this.playerName, this.playerType,
       {super.key});
   WordleGame game;
 
   @override
   State<GameKeyboard> createState() =>
-      _GameKeyboardState(wordLength, room, playerName);
+      _GameKeyboardState(wordLength, room, playerName, playerType);
 }
 
 String tempWord = ""; // to delete the character after indicating it
@@ -44,8 +46,10 @@ class _GameKeyboardState extends State<GameKeyboard> {
   int wordLength;
   Room room;
   String playerName;
+  int playerType;
 
-  _GameKeyboardState(this.wordLength, this.room, this.playerName);
+  _GameKeyboardState(
+      this.wordLength, this.room, this.playerName, this.playerType);
 
   List<String> words = [];
 
@@ -141,7 +145,7 @@ class _GameKeyboardState extends State<GameKeyboard> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: row3.map((e) {
             return InkWell(
-              onTap: () {
+              onTap: () async {
                 print(e + widget.game.letterId.toString());
                 if (e == "DEL") {
                   if (widget.game.letterId > 0) {
@@ -159,8 +163,8 @@ class _GameKeyboardState extends State<GameKeyboard> {
                         .join();
                     print("---- Uploading word");
                     words.add(uGuess);
-                    RoomService()
-                        .uploadPlayerGuesses(words, room.key, playerName);
+                    RoomService().uploadPlayerGuesses(
+                        words, room.key, playerName, playerType);
                     print("---- Full word");
 
                     int yellowCount = 0;
@@ -168,8 +172,22 @@ class _GameKeyboardState extends State<GameKeyboard> {
                     tempWord = WordleGame.game_guess;
 
                     if (uGuess == WordleGame.game_guess) {
+                      bool otherNotWon = true;
+                      try {
+                        otherNotWon = await RoomService()
+                            .setTheWinner(room.key, playerName);
+                      } catch (e) {
+                        print("Error setting the winner: " + e.toString());
+                      }
+
                       setState(() {
-                        WordleGame.game_message = "Congratulations";
+                        if (otherNotWon) {
+                          WordleGame.game_message =
+                              "Congratulations, You won!!";
+                        } else {
+                          WordleGame.game_message =
+                              "Other player won before you";
+                        }
                         for (var element
                             in widget.game.wordleBoard[widget.game.rowId]) {
                           element.code = 1;

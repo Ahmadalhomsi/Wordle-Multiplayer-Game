@@ -98,6 +98,7 @@ class UserService {
     // Remove the invitation
     await _invitationRef.child(userId).child(roomId).remove();
   }
+    
 
 
   String generateRandomWord(int length) {

@@ -19,15 +19,19 @@ class RoomService {
 // Upload player guesses to Firebase
   void uploadPlayerGuesses(
       List<String> guesses, String roomId, String player, int playerType) {
-    String jsonGuesses = wordsToJson(guesses);
+    try {
+      String jsonGuesses = wordsToJson(guesses);
 
-    // Upload the JSON data to Firebase under the respective node
-    DatabaseReference reference = FirebaseDatabase.instance
-        .ref()
-        .child('rooms')
-        .child(roomId)
-        .child('player' + playerType.toString() + "_Guesses");
-    reference.set(jsonGuesses);
+      // Upload the JSON data to Firebase under the respective node
+      DatabaseReference reference = FirebaseDatabase.instance
+          .ref()
+          .child('rooms')
+          .child(roomId)
+          .child('player' + playerType.toString() + "_Guesses");
+      reference.set(jsonGuesses);
+    } catch (e) {
+      print("error uploading player guesses");
+    }
   }
 
   Future<void> resetRoom(String roomKey) async {
@@ -41,6 +45,8 @@ class RoomService {
         'winner': '',
         'player1_Guesses': '',
         'player2_Guesses': '',
+        'player1_Score': 0,
+        'player2_Score': 0,
       });
     } catch (error) {
       print('Error resetting room: $error');
@@ -274,5 +280,90 @@ class RoomService {
       // Handle error accordingly
       return false; // Return false in case of error
     }
+  }
+
+  Stream<bool> listenForOtherPlayerExistence(String roomId, int playerType) {
+    DatabaseReference roomRef =
+        FirebaseDatabase.instance.ref().child('rooms/$roomId');
+
+    // Create a DataSnapshot stream for the room
+    final roomStream = roomRef.onValue;
+
+    return roomStream.map((event) {
+      final snapshot = event.snapshot;
+      if (snapshot.exists) {
+        // Check for player1 or player2 based on the playerType
+        if (playerType == 1) {
+          String? player2 = snapshot.child('player2').value as String?;
+          if (player2 == null) {
+            print('Player 2 has left');
+            return true; // Other player has left
+          }
+        } else if (playerType == 2) {
+          String? player1 = snapshot.child('player1').value as String?;
+          if (player1 == null) {
+            print('Player 1 has left');
+            return true; // Other player has left
+          }
+        }
+      }
+      return false; // Other player still exists
+    });
+  }
+
+  Future<int> setPlayerScore(String roomId, int playerType, int score) async {
+    try {
+      DatabaseReference roomRef = databaseReference.child(roomId);
+      DataSnapshot snapshot =
+          await roomRef.child('player${playerType}_Score').get();
+
+      if (snapshot.value == null || snapshot.value == 0) {
+        await roomRef.child('player${playerType}_Score').set(score);
+        print('score set.');
+        return 1;
+      } else {
+        print('score is already set.');
+        return 0;
+      }
+    } catch (error) {
+      print('Error setting the Player Score');
+      // Handle error accordingly
+      return -1; // Return false in case of error
+    }
+    return -1;
+  }
+
+  Stream<int?> listenForOtherPlayerScore(String roomId, int playerType) {
+    DatabaseReference roomRef =
+        FirebaseDatabase.instance.ref().child('rooms/$roomId');
+
+    // Create a DataSnapshot stream for the room
+    final roomStream = roomRef.onValue;
+
+    return roomStream.map((event) {
+      try {
+        final snapshot = event.snapshot;
+        if (snapshot.exists) {
+          // Check for player1 or player2 based on the playerType
+          if (playerType == 1) {
+            int? player2Score = snapshot.child('player2_Score').value as int?;
+            if (player2Score == 0) {
+              print('Player 2 has not finished yet');
+            }
+            return player2Score;
+          } else if (playerType == 2) {
+            int? player1Score = snapshot.child('player1_Score').value as int?;
+            if (player1Score == 0) {
+              print('Player 1 has not finished yet');
+            }
+            return player1Score;
+          }
+        }
+      } catch (e) {
+        print("Error listenForOtherPlayerScore" + e.toString());
+      }
+
+      return null; // Room or player not found
+    });
   }
 }

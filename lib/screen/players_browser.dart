@@ -69,6 +69,13 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
             } else {
               // Reject invitation
               rejectInvitation(senderId);
+
+              // Show a snackbar to indicate that the invitation was rejected
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Invitation rejected'),
+                ),
+              );
               //print("invitation rejected");
             }
           }
@@ -188,6 +195,8 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
 
       // Wait for the room to become available
       String? roomId = await listenForInvitationRoomUpdate(recipientId);
+      invitationRoomUpdateListener.cancel;
+      rejectInvitation(recipientId);
 
       if (roomId != null) {
         print('Room available! roomId: $roomId');
@@ -355,13 +364,6 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
 
       // Delete the invitation at the given ID
       await invitationRef.remove();
-
-      // Show a snackbar to indicate that the invitation was rejected
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Invitation rejected'),
-        ),
-      );
     } catch (error) {
       print('Error rejecting invitation: $error');
     }
@@ -452,6 +454,7 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
     }
   }
 
+  late StreamSubscription<DatabaseEvent> invitationRoomUpdateListener;
   Future<String?> listenForInvitationRoomUpdate(String invitationId) async {
     Completer<String?> completer = Completer<String?>();
 
@@ -460,7 +463,7 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
         .child('invitations')
         .child(invitationId);
 
-    invitationRef.onValue.listen((event) {
+    invitationRoomUpdateListener = invitationRef.onValue.listen((event) {
       DataSnapshot snapshot = event.snapshot;
       if (snapshot.exists) {
         Map<dynamic, dynamic>? invitationData = snapshot.value as Map?;

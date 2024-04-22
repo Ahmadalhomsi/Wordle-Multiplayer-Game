@@ -56,6 +56,7 @@ class Room {
   }
 
   late StreamSubscription<DatabaseEvent> playerWordChangesListener;
+  
   Future<String> listenForPlayerWordChanges(String playerName) async {
     Completer<String> completer = Completer<String>();
     var roomRef =

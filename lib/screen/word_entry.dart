@@ -170,64 +170,7 @@ class _WordScreenState extends State<WordScreen> {
                 const SizedBox(
                   height: 20.0,
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    String wd = "";
-                    for (int i = 0; i < room.wordLength; i++) {
-                      if (letters[i] == '') {
-                        print("***** Short word *****");
-                        return null;
-                      }
 
-                      wd += letters[i];
-                    }
-                    //print("XXXXXXXXXX: $wd");
-                    room.updatePlayerWord(wd, playerType);
-                    print("++++________++++");
-                    String wordToGuess = '';
-                    int otherPlayer = playerType == 1 ? 2 : 1;
-
-                    if (playerType == 1) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Row(
-                            children: [
-                              CircularProgressIndicator(),
-                              SizedBox(width: 16),
-                              Text(
-                                  'Please wait for the other player to enter the word.'),
-                            ],
-                          ),
-                          duration: Duration(
-                              seconds: 5), // Adjust the duration as needed
-                        ),
-                      );
-                    }
-                    _cancelTimer();
-
-                    wordToGuess = await room
-                        .listenForPlayerWordChanges('player$otherPlayer');
-                    room.playerWordChangesListener.cancel();
-
-                    // Do something with the updated word
-                    print('Player${otherPlayer}\'s word: $wordToGuess');
-
-                    print("++++________++++" + wordToGuess);
-                    print("YESSSSSSSSSSSSSSSSSSS");
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GameScreen(
-                                room: room,
-                                word: wordToGuess,
-                                playerName: playerName,
-                                playerType: playerType,
-                              )),
-                    );
-                  },
-                  child: const Text('Go to Another Screen'),
-                ),
                 const SizedBox(
                   height: 20.0,
                 ),
@@ -299,7 +242,7 @@ class _WordScreenState extends State<WordScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: row3.map((e) {
                     return InkWell(
-                      onTap: () {
+                      onTap: () async {
                         print(e + index.toString());
                         if (e == "DEL") {
                           if (index > 0) {
@@ -310,6 +253,60 @@ class _WordScreenState extends State<WordScreen> {
                           }
                         } else if (e == "SUBMIT") {
                           if (index >= _sliderValue) {
+                            String wd = "";
+                            for (int i = 0; i < room.wordLength; i++) {
+                              if (letters[i] == '') {
+                                print("***** Short word *****");
+                                return null;
+                              }
+
+                              wd += letters[i];
+                            }
+                            //print("XXXXXXXXXX: $wd");
+                            room.updatePlayerWord(wd, playerType);
+                            print("++++________++++");
+                            String wordToGuess = '';
+                            int otherPlayer = playerType == 1 ? 2 : 1;
+
+                            if (playerType == 1) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Row(
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(width: 16),
+                                      Text(
+                                          'Please wait for the other player to enter the word.'),
+                                    ],
+                                  ),
+                                  duration: Duration(
+                                      seconds:
+                                          5), // Adjust the duration as needed
+                                ),
+                              );
+                            }
+                            _cancelTimer();
+
+                            wordToGuess = await room.listenForPlayerWordChanges(
+                                'player$otherPlayer');
+                            room.playerWordChangesListener.cancel();
+
+                            // Do something with the updated word
+                            print('Player${otherPlayer}\'s word: $wordToGuess');
+
+                            print("++++________++++" + wordToGuess);
+                            print("YESSSSSSSSSSSSSSSSSSS");
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => GameScreen(
+                                        room: room,
+                                        word: wordToGuess,
+                                        playerName: playerName,
+                                        playerType: playerType,
+                                      )),
+                            );
                           } else {
                             print(e + index.toString());
                             if (index < _sliderValue) {

@@ -10,6 +10,7 @@ import 'package:wordle/utils/game_provider.dart';
 import 'package:wordle/widgets/game_keyboard.dart';
 
 import '../models/Room.dart';
+import '../widgets/winning_screen.dart';
 
 class GameScreen extends StatefulWidget {
   final Room room;
@@ -40,6 +41,7 @@ class _GameScreenState extends State<GameScreen> {
   String playerName;
   int playerType;
   int triesCount = 3;
+  String otherPlayerName = ""; // Initialize as an empty string
 
   _GameScreenState(
     this.room,
@@ -54,17 +56,45 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeState();
+  }
+
+  Future<void> _initializeState() async {
     _game = WordleGame(room.wordLength, word, 2, triesCount);
     print("The word:" + word);
     print("Word Length :" + room.wordLength.toString());
 
-    ///**** listenning */
+    // Update otherPlayerName asynchronously
+    otherPlayerName =
+        await RoomService().getOtherPlayerName(room.key, playerType);
+
+    ///**** listening */
     _invitationStreamSubscription = RoomService()
         .listenForOtherPlayerExistence(room.key, playerType)
-        .listen((playerLeft) {
+        .listen((playerLeft) async {
       // the senderId is also the invitation ID
       if (playerLeft) {
         print("The other player has left");
+        await RoomService().setTheWinner(room.key, playerName);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WinningScreen(
+              playerName: playerName,
+              playerScore: 10*word.length,
+              opponentName: otherPlayerName,
+              opponentScore: 0,
+            ),
+          ),
+        );
+
+        // Show a snackbar to indicate that the invitation was rejected
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('The other player has left'),
+          ),
+        );
       } else {
         print("Other player exists.");
       }
@@ -149,7 +179,8 @@ class _GameScreenState extends State<GameScreen> {
           const SizedBox(
             height: 20.0,
           ),
-          GameKeyboard(_game, word.length, room, playerName, playerType),
+          GameKeyboard(_game, word.length, room, playerName, playerType,
+              otherPlayerName),
         ],
       ),
     );

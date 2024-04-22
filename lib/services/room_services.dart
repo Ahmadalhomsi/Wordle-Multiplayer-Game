@@ -48,6 +48,7 @@ class RoomService {
         'player1_Score': 0,
         'player2_Score': 0,
       });
+      print("The room ${roomKey} has been reseted");
     } catch (error) {
       print('Error resetting room: $error');
     }
@@ -365,5 +366,24 @@ class RoomService {
 
       return null; // Room or player not found
     });
+  }
+
+  Future<String> getOtherPlayerName(String roomId, int playerType) async {
+    try {
+      DatabaseReference roomRef = databaseReference.child(roomId);
+      DataSnapshot snapshot = await roomRef.child('player$playerType').get();
+
+      // Check if the snapshot value is not null before casting
+      if (snapshot.value != null) {
+        return snapshot.value as String;
+      } else {
+        // Return an empty string if the snapshot value is null
+        return '';
+      }
+    } catch (error) {
+      print('Error getting other player name: $error');
+      // Handle error accordingly
+      return ''; // Return an empty string in case of error
+    }
   }
 }

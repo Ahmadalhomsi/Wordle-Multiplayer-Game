@@ -6,6 +6,7 @@ import 'package:wordle/utils/game_provider.dart';
 import 'package:wordle/widgets/game_board.dart';
 
 import '../models/Room.dart';
+import 'winning_screen.dart';
 
 // ignore: must_be_immutable
 class GameKeyboard extends StatefulWidget {
@@ -13,14 +14,15 @@ class GameKeyboard extends StatefulWidget {
   Room room;
   String playerName;
   int playerType;
-  GameKeyboard(
-      this.game, this.wordLength, this.room, this.playerName, this.playerType,
+  String otherPlayerName;
+  GameKeyboard(this.game, this.wordLength, this.room, this.playerName,
+      this.playerType, this.otherPlayerName,
       {super.key});
   WordleGame game;
 
   @override
-  State<GameKeyboard> createState() =>
-      _GameKeyboardState(wordLength, room, playerName, playerType);
+  State<GameKeyboard> createState() => _GameKeyboardState(
+      wordLength, room, playerName, playerType, otherPlayerName);
 }
 
 String tempWord = ""; // to delete the character after indicating it
@@ -49,9 +51,10 @@ class _GameKeyboardState extends State<GameKeyboard> {
   Room room;
   String playerName;
   int playerType;
+  String otherPlayerName;
 
-  _GameKeyboardState(
-      this.wordLength, this.room, this.playerName, this.playerType);
+  _GameKeyboardState(this.wordLength, this.room, this.playerName,
+      this.playerType, this.otherPlayerName);
 
   List<String> words = [];
 
@@ -183,6 +186,20 @@ class _GameKeyboardState extends State<GameKeyboard> {
                       try {
                         otherNotWon = await RoomService()
                             .setTheWinner(room.key, playerName);
+                        await RoomService().setPlayerScore(
+                            room.key, playerType, 10 * wordLength);
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WinningScreen(
+                              playerName: playerName,
+                              playerScore: 10 * wordLength,
+                              opponentName: otherPlayerName,
+                              opponentScore: 0,
+                            ),
+                          ),
+                        );
                       } catch (e) {
                         print("Error setting the winner: " + e.toString());
                       }
@@ -251,6 +268,26 @@ class _GameKeyboardState extends State<GameKeyboard> {
                               print("You are the winner");
                               await RoomService()
                                   .setTheWinner(room.key, playerName);
+                              await RoomService().setPlayerScore(
+                                  room.key, playerType, myScore);
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => WinningScreen(
+                                    playerName: playerName,
+                                    playerScore: myScore,
+                                    opponentName: otherPlayerName,
+                                    opponentScore: score,
+                                  ),
+                                ),
+                              );
+                            } else if (myScore == score) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Draw'),
+                                ),
+                              );
                             } else {
                               print("The other player is the winner");
                             }

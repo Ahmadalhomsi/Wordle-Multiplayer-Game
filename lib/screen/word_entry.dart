@@ -91,6 +91,8 @@ class _WordScreenState extends State<WordScreen> {
   List<String> letters = "       ".split(""); // Generate letters from A to Z
   int index = 0;
 
+  String waitingMessage = '';
+
   @override
   void dispose() {
     _cancelTimer(); // Cancel the timer when the widget is disposed
@@ -119,6 +121,16 @@ class _WordScreenState extends State<WordScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Text(
+                  '$waitingMessage',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(
+                  height: 20.0,
+                ),
                 Text(
                   room.name,
                   style: TextStyle(
@@ -269,22 +281,26 @@ class _WordScreenState extends State<WordScreen> {
                             int otherPlayer = playerType == 1 ? 2 : 1;
 
                             if (playerType == 1) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Row(
-                                    children: [
-                                      CircularProgressIndicator(),
-                                      SizedBox(width: 16),
-                                      Text(
-                                          'Please wait for the other player to enter the word.'),
-                                    ],
-                                  ),
-                                  duration: Duration(
-                                      seconds:
-                                          5), // Adjust the duration as needed
-                                ),
-                              );
+                              // ScaffoldMessenger.of(context).showSnackBar(
+                              //   const SnackBar(
+                              //     content: Row(
+                              //       children: [
+                              //         CircularProgressIndicator(),
+                              //         SizedBox(width: 16),
+                              //         Text(
+                              //             'Please wait for the other player to enter the word.'),
+                              //       ],
+                              //     ),
+                              //     duration: Duration(
+                              //         seconds:
+                              //             5), // Adjust the duration as needed
+                              //   ),
+                              // );
                             }
+                            setState(() {
+                              waitingMessage =
+                                  'Please wait for the other player to enter the word.';
+                            });
                             _cancelTimer();
 
                             wordToGuess = await room.listenForPlayerWordChanges(

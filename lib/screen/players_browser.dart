@@ -92,7 +92,6 @@ class _PlayerBrowseScreenState extends State<PlayerBrowseScreen> {
   @override
   void dispose() {
     _invitationStreamSubscription?.cancel(); // Clean up listener on dispose
-    print("_invitationStreamSubscription?.cancel()");
     //UserService().updateUserStatus(userId, 'Offline');
     super.dispose();
   }

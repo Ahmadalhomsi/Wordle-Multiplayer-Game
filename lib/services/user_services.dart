@@ -98,8 +98,6 @@ class UserService {
     // Remove the invitation
     await _invitationRef.child(userId).child(roomId).remove();
   }
-    
-
 
   String generateRandomWord(int length) {
     final random = Random();
@@ -114,7 +112,13 @@ class UserService {
       'peach',
       'pear',
       'kiwi',
-      'plum'
+      'plum',
+      'button',
+      'bread',
+      'toast',
+      'black',
+      'burger',
+      'mango',
     ];
 
     // Filter words from the list that match the desired length

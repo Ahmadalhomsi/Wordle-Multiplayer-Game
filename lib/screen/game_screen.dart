@@ -65,8 +65,12 @@ class _GameScreenState extends State<GameScreen> {
     print("Word Length :" + room.wordLength.toString());
 
     // Update otherPlayerName asynchronously
-    otherPlayerName =
-        await RoomService().getOtherPlayerName(room.key, playerType);
+
+    Future.delayed(Duration(seconds: 2), () async {
+      otherPlayerName =
+          await RoomService().getOtherPlayerName(room.key, playerType);
+    });
+    print("Other player name:" + otherPlayerName);
 
     ///**** listening */
     _invitationStreamSubscription = RoomService()
@@ -77,12 +81,13 @@ class _GameScreenState extends State<GameScreen> {
         print("The other player has left");
         await RoomService().setTheWinner(room.key, playerName);
 
+        _invitationStreamSubscription.cancel();
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => WinningScreen(
               playerName: playerName,
-              playerScore: 10*word.length,
+              playerScore: 10 * word.length,
               opponentName: otherPlayerName,
               opponentScore: 0,
             ),

@@ -104,6 +104,7 @@ class RoomService {
           if (!roomData['isFull']) {
             // Check if player1 is empty
             if (roomData['player1'] == null || roomData['player1'] == '') {
+              resetRoom(roomId);
               await roomRef.update({'player1': playerName});
               print('Player $playerName joined room $roomId as player1');
               return 0;
@@ -370,11 +371,13 @@ class RoomService {
 
   Future<String> getOtherPlayerName(String roomId, int playerType) async {
     try {
+      int otherPlayerType = (playerType == 1) ? 2 : 1;
       DatabaseReference roomRef = databaseReference.child(roomId);
-      DataSnapshot snapshot = await roomRef.child('player$playerType').get();
+      DataSnapshot snapshot =
+          await roomRef.child('player$otherPlayerType').get();
 
       // Check if the snapshot value is not null before casting
-      if (snapshot.value != null) {
+      if (snapshot.value != null || snapshot.value != '') {
         return snapshot.value as String;
       } else {
         // Return an empty string if the snapshot value is null
@@ -386,4 +389,38 @@ class RoomService {
       return ''; // Return an empty string in case of error
     }
   }
+
+  Future<List<String>?> getOtherPlayerGuesses(
+      String roomId, int playerType) async {
+    int otherPlayerType = (playerType == 1) ? 2 : 1;
+    try {
+      DatabaseReference roomRef = databaseReference.child(roomId);
+      DataSnapshot snapshot =
+          await roomRef.child('player${otherPlayerType}_Guesses').get();
+
+      // Check if the snapshot value is not null before parsing
+      if (snapshot.value != null) {
+        // Parse the JSON string and explicitly cast each element to String
+        List<String> guesses =
+            (json.decode(snapshot.value!.toString()) as List<dynamic>)
+                .map((dynamic item) => item.toString())
+                .toList();
+        return guesses;
+      } else {
+        // Return null if the snapshot value is null
+        return null;
+      }
+    } catch (error) {
+      print('Error getting other player guesses: $error');
+      // Handle error accordingly
+      return null;
+    }
+  }
+
+// // Function to convert JSON string to List<String>
+//   List<String> jsonToWords(dynamic json) {
+//     List<dynamic> list = jsonDecode(json);
+//     List<String> words = list.map((e) => e as String).toList();
+//     return words;
+//   }
 }

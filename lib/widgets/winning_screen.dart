@@ -6,13 +6,14 @@ class WinningScreen extends StatelessWidget {
   final int playerScore;
   final String opponentName;
   final int opponentScore;
+  final String message;
 
-  WinningScreen({
-    required this.playerName,
-    required this.playerScore,
-    required this.opponentName,
-    required this.opponentScore,
-  });
+  WinningScreen(
+      {required this.playerName,
+      required this.playerScore,
+      required this.opponentName,
+      required this.opponentScore,
+      required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class WinningScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Congratulations, $playerName!',
+              '$message, $playerName!',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -32,7 +33,7 @@ class WinningScreen extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(
-              'You won with a score of $playerScore!',
+              '$message with a score of $playerScore!',
               style: TextStyle(
                 fontSize: 20,
                 color: Colors.white,

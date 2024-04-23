@@ -90,6 +90,7 @@ class _GameScreenState extends State<GameScreen> {
               playerScore: 10 * word.length,
               opponentName: otherPlayerName,
               opponentScore: 0,
+              message: "Congratulations",
             ),
           ),
         );

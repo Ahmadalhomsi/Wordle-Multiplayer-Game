@@ -16,6 +16,7 @@ class GameKeyboard extends StatefulWidget {
   String playerName;
   int playerType;
   String otherPlayerName;
+
   GameKeyboard(this.game, this.wordLength, this.room, this.playerName,
       this.playerType, this.otherPlayerName,
       {super.key});
@@ -23,7 +24,12 @@ class GameKeyboard extends StatefulWidget {
 
   @override
   State<GameKeyboard> createState() => _GameKeyboardState(
-      wordLength, room, playerName, playerType, otherPlayerName);
+        wordLength,
+        room,
+        playerName,
+        playerType,
+        otherPlayerName,
+      );
 }
 
 String tempWord = ""; // to delete the character after indicating it
@@ -54,8 +60,13 @@ class _GameKeyboardState extends State<GameKeyboard> {
   int playerType;
   String otherPlayerName;
 
-  _GameKeyboardState(this.wordLength, this.room, this.playerName,
-      this.playerType, this.otherPlayerName);
+  _GameKeyboardState(
+    this.wordLength,
+    this.room,
+    this.playerName,
+    this.playerType,
+    this.otherPlayerName,
+  );
 
   List<String> words = [];
 
@@ -419,6 +430,7 @@ class _GameKeyboardState extends State<GameKeyboard> {
                 playerScore: 10 * wordLength + totalRemainingSeconds,
                 opponentName: otherPlayerName,
                 opponentScore: 0,
+                message: "Congratulations",
               ),
             ),
           );
@@ -473,47 +485,82 @@ class _GameKeyboardState extends State<GameKeyboard> {
           int otherPlayerScore = 0;
 
           // Start listening to the stream
-          subscription = RoomService()
-              .listenForOtherPlayerScore(room.key, playerType)
-              .listen((score) async {
-            if (score != 0) {
-              // Score is not null, handle the score
-              print('Other player score: $score');
-              otherPlayerScore = score!;
+          Future.delayed(Duration(seconds: 2), () async {
+            subscription = RoomService()
+                .listenForOtherPlayerScore(room.key, playerType)
+                .listen((score) async {
+              if (score != -1) {
+                // Score is not null, handle the score
+                print('Other player score: $score');
+                otherPlayerScore = score!;
 
-              if (myScore > score) {
-                print("You are the winner");
-                await RoomService().setTheWinner(room.key, playerName);
-                await RoomService()
-                    .setPlayerScore(room.key, playerType, myScore);
+                if (myScore > score) {
+                  print("You are the winner");
+                  await RoomService().setTheWinner(room.key, playerName);
+                  await RoomService()
+                      .setPlayerScore(room.key, playerType, myScore);
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WinningScreen(
-                      playerName: playerName,
-                      playerScore: myScore,
-                      opponentName: otherPlayerName,
-                      opponentScore: score,
+                  subscription?.cancel();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WinningScreen(
+                        playerName: playerName,
+                        playerScore: myScore,
+                        opponentName: otherPlayerName,
+                        opponentScore: score,
+                        message: "Congratulations",
+                      ),
                     ),
-                  ),
-                );
-              } else if (myScore == score) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Draw'),
-                  ),
-                );
-              } else {
-                print("The other player is the winner");
-              }
+                  );
+                } else if (myScore == score) {
+                  subscription?.cancel();
+                  await RoomService()
+                      .setPlayerScore(room.key, playerType, myScore);
+                  print("Draw");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Draw'),
+                    ),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WinningScreen(
+                        playerName: playerName,
+                        playerScore: myScore,
+                        opponentName: otherPlayerName,
+                        opponentScore: score,
+                        message: "Draw",
+                      ),
+                    ),
+                  );
+                } else {
+                  subscription?.cancel();
+                  await RoomService()
+                      .setPlayerScore(room.key, playerType, myScore);
+                  print("The other player is the winner");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WinningScreen(
+                        playerName: playerName,
+                        playerScore: myScore,
+                        opponentName: otherPlayerName,
+                        opponentScore: score,
+                        message: "You lost",
+                      ),
+                    ),
+                  );
+                }
 
-              subscription?.cancel();
-              // You can do further processing here if needed
-            } else {
-              // Score is null, indicate that the other player has not finished yet
-              print('Waiting for the other player to finish...');
-            }
+                subscription?.cancel();
+                // You can do further processing here if needed
+              } else {
+                // Score is null, indicate that the other player has not finished yet
+                print('Waiting for the other player to finish...');
+              }
+            });
           });
 
           print("Enderista");

@@ -45,8 +45,8 @@ class RoomService {
         'winner': '',
         'player1_Guesses': '',
         'player2_Guesses': '',
-        'player1_Score': 0,
-        'player2_Score': 0,
+        'player1_Score': -1,
+        'player2_Score': -1,
       });
       print("The room ${roomKey} has been reseted");
     } catch (error) {
@@ -319,7 +319,9 @@ class RoomService {
       DataSnapshot snapshot =
           await roomRef.child('player${playerType}_Score').get();
 
-      if (snapshot.value == null || snapshot.value == 0) {
+      if (snapshot.value == null ||
+          snapshot.value == -1 ||
+          snapshot.value == 0) {
         await roomRef.child('player${playerType}_Score').set(score);
         print('score set.');
         return 1;
@@ -349,13 +351,13 @@ class RoomService {
           // Check for player1 or player2 based on the playerType
           if (playerType == 1) {
             int? player2Score = snapshot.child('player2_Score').value as int?;
-            if (player2Score == 0) {
+            if (player2Score == -1) {
               print('Player 2 has not finished yet');
             }
             return player2Score;
           } else if (playerType == 2) {
             int? player1Score = snapshot.child('player1_Score').value as int?;
-            if (player1Score == 0) {
+            if (player1Score == -1) {
               print('Player 1 has not finished yet');
             }
             return player1Score;

@@ -1,16 +1,38 @@
-# wordle
+# Wordle Game
 
-A new Flutter project.
+## Description
 
-## Getting Started
+This is a Flutter application for playing the Wordle game, where players try to guess a secret word within a limited number of attempts. The game supports both single-player and multiplayer modes.
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+- Single-player mode: Guess the word within a limited number of attempts.
+- Multiplayer mode: Play against another player and compete to guess the word first.
+- Real-time updates: See the opponent's guesses in real-time.
+- Timer: A timer limits the time for each player's turn.
+- Score calculation: Scores are calculated based on the accuracy and speed of guessing the word.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Technologies Used
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Flutter for the front-end development.
+- Firebase for real-time database and authentication.
+
+## Installation
+
+1. Clone this repository to your local machine.
+2. Set up Firebase for your project and replace the Firebase configuration in `firebase_options.dart` with your own.
+3. Run `flutter pub get` to install dependencies.
+4. Run the app on an emulator or physical device using `flutter run`.
+
+## Usage
+
+- Launch the app and sign in or create an account.
+- Choose between single-player and multiplayer mode.
+- In single-player mode, try to guess the secret word within the given number of attempts.
+- In multiplayer mode, compete with another player to guess the word first.
+- Use the provided keyboard to enter your guesses.
+- See real-time updates of the opponent's guesses.
+- Earn scores based on the accuracy and speed of guessing.
+
+
+

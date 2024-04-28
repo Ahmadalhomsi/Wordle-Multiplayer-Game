@@ -34,5 +34,21 @@ This is a Flutter application for playing the Wordle game, where players try to 
 - See real-time updates of the opponent's guesses.
 - Earn scores based on the accuracy and speed of guessing.
 
+## Firebase Configuration
 
+To use Firebase services in this app, you'll need to set up a Firebase project and replace the configuration variables in `firebase_options.dart` with your own. Here's how the variables look like:
+
+```dart
+class DefaultFirebaseOptions {
+  static const FirebaseOptions currentPlatform = FirebaseOptions(
+    appId: 'your_app_id',
+    apiKey: 'your_api_key',
+    messagingSenderId: 'your_messaging_sender_id',
+    projectId: 'your_project_id',
+    databaseURL: 'your_database_url',
+    storageBucket: 'your_storage_bucket',
+    authDomain: 'your_auth_domain',
+    measurementId: 'your_measurement_id',
+  );
+}
 

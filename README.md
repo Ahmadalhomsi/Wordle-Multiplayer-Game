@@ -6,7 +6,6 @@ This is a Flutter application for playing the Wordle game, where players try to 
 
 ## Features
 
-- Single-player mode: Guess the word within a limited number of attempts.
 - Multiplayer mode: Play against another player and compete to guess the word first.
 - Real-time updates: See the opponent's guesses in real-time.
 - Timer: A timer limits the time for each player's turn.
